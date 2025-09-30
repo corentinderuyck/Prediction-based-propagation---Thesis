@@ -1,0 +1,59 @@
+<instance format="XCSP3" type="CSP">
+  <variables>
+    <array id="x" size="[15]"> 0..8 </array>
+  </variables>
+  <constraints>
+    <group>
+      <allDifferent> %... </allDifferent>
+      <args> x[0..2] </args>
+      <args> x[0] x[2..3] </args>
+      <args> x[0] x[3..4] </args>
+      <args> x[0] x[4..5] </args>
+      <args> x[0] x[5..6] </args>
+      <args> x[0] x[6..7] </args>
+      <args> x[0] x[7..8] </args>
+      <args> x[0] x[8..9] </args>
+      <args> x[0] x[9..10] </args>
+      <args> x[0] x[10..11] </args>
+      <args> x[0] x[11..12] </args>
+      <args> x[0] x[12..13] </args>
+      <args> x[0] x[13..14] </args>
+      <args> x[1..2] x[4] </args>
+      <args> x[1] x[3] x[5] </args>
+      <args> x[1] x[4] x[6] </args>
+      <args> x[1] x[5] x[7] </args>
+      <args> x[1] x[6] x[8] </args>
+      <args> x[1] x[7] x[9] </args>
+      <args> x[1] x[8] x[10] </args>
+      <args> x[1] x[9] x[11] </args>
+      <args> x[1] x[10] x[12] </args>
+      <args> x[1] x[11] x[13] </args>
+      <args> x[1] x[12] x[14] </args>
+      <args> x[2..3] x[6] </args>
+      <args> x[2] x[4] x[7] </args>
+      <args> x[2] x[5] x[8] </args>
+      <args> x[2] x[6] x[9] </args>
+      <args> x[2] x[7] x[10] </args>
+      <args> x[2] x[8] x[11] </args>
+      <args> x[2] x[9] x[12] </args>
+      <args> x[2] x[10] x[13] </args>
+      <args> x[2] x[11] x[14] </args>
+      <args> x[3..4] x[8] </args>
+      <args> x[3] x[5] x[9] </args>
+      <args> x[3] x[6] x[10] </args>
+      <args> x[3] x[7] x[11] </args>
+      <args> x[3] x[8] x[12] </args>
+      <args> x[3] x[9] x[13] </args>
+      <args> x[3] x[10] x[14] </args>
+      <args> x[4..5] x[10] </args>
+      <args> x[4] x[6] x[11] </args>
+      <args> x[4] x[7] x[12] </args>
+      <args> x[4] x[8] x[13] </args>
+      <args> x[4] x[9] x[14] </args>
+      <args> x[5..6] x[12] </args>
+      <args> x[5] x[7] x[13] </args>
+      <args> x[5] x[8] x[14] </args>
+      <args> x[6..7] x[14] </args>
+    </group>
+  </constraints>
+</instance>

@@ -1,0 +1,11 @@
+.idea
+*.iml
+target/
+*.DS_Store
+META-INF/
+out/
+
+all_xml_instances/
+data/
+!*/data/
+python/env/

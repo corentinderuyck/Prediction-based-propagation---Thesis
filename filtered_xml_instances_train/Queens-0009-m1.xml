@@ -1,0 +1,47 @@
+<instance format="XCSP3" type="CSP">
+  <variables>
+    <array id="q" size="[9]"> 0..8 </array>
+  </variables>
+  <constraints>
+    <allDifferent> q[] </allDifferent>
+    <group>
+      <intension> ne(%0,dist(%1,%2)) </intension>
+      <args> 1 q[0] q[1] </args>
+      <args> 2 q[0] q[2] </args>
+      <args> 3 q[0] q[3] </args>
+      <args> 4 q[0] q[4] </args>
+      <args> 5 q[0] q[5] </args>
+      <args> 6 q[0] q[6] </args>
+      <args> 7 q[0] q[7] </args>
+      <args> 8 q[0] q[8] </args>
+      <args> 1 q[1] q[2] </args>
+      <args> 2 q[1] q[3] </args>
+      <args> 3 q[1] q[4] </args>
+      <args> 4 q[1] q[5] </args>
+      <args> 5 q[1] q[6] </args>
+      <args> 6 q[1] q[7] </args>
+      <args> 7 q[1] q[8] </args>
+      <args> 1 q[2] q[3] </args>
+      <args> 2 q[2] q[4] </args>
+      <args> 3 q[2] q[5] </args>
+      <args> 4 q[2] q[6] </args>
+      <args> 5 q[2] q[7] </args>
+      <args> 6 q[2] q[8] </args>
+      <args> 1 q[3] q[4] </args>
+      <args> 2 q[3] q[5] </args>
+      <args> 3 q[3] q[6] </args>
+      <args> 4 q[3] q[7] </args>
+      <args> 5 q[3] q[8] </args>
+      <args> 1 q[4] q[5] </args>
+      <args> 2 q[4] q[6] </args>
+      <args> 3 q[4] q[7] </args>
+      <args> 4 q[4] q[8] </args>
+      <args> 1 q[5] q[6] </args>
+      <args> 2 q[5] q[7] </args>
+      <args> 3 q[5] q[8] </args>
+      <args> 1 q[6] q[7] </args>
+      <args> 2 q[6] q[8] </args>
+      <args> 1 q[7] q[8] </args>
+    </group>
+  </constraints>
+</instance>

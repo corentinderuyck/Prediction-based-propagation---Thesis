@@ -1,0 +1,1179 @@
+{
+  "per_file_number_variables": {
+    "AllInterval-006.JSONL": {
+      "eq": {
+        "5": 119,
+        "6": 1102
+      },
+      "neq": {
+        "5": 205,
+        "6": 1113
+      }
+    },
+    "AllInterval-009.JSONL": {
+      "eq": {
+        "8": 40319,
+        "9": 689499
+      },
+      "neq": {
+        "8": 69280,
+        "9": 604094
+      }
+    },
+    "Allergy.JSONL": {
+      "eq": {
+        "4": 1
+      },
+      "neq": {
+        "4": 2
+      }
+    },
+    "Alpha.JSONL": {
+      "eq": {
+        "26": 251433
+      },
+      "neq": {
+        "26": 90404
+      }
+    },
+    "Kakuro-hard-010-sumdiff.JSONL": {
+      "eq": {
+        "2": 49,
+        "3": 82,
+        "4": 48,
+        "5": 27,
+        "6": 12
+      },
+      "neq": {
+        "4": 10,
+        "6": 16,
+        "2": 12,
+        "3": 18,
+        "5": 15
+      }
+    },
+    "Kakuro-hard-056-sumdiff.JSONL": {
+      "eq": {
+        "2": 79,
+        "3": 73,
+        "5": 91,
+        "6": 47,
+        "4": 108
+      },
+      "neq": {
+        "6": 29,
+        "5": 28,
+        "4": 43,
+        "2": 33,
+        "3": 28
+      }
+    },
+    "Kakuro-hard-062-sumdiff.JSONL": {
+      "eq": {
+        "2": 173,
+        "3": 151,
+        "4": 224,
+        "5": 170
+      },
+      "neq": {
+        "4": 87,
+        "5": 75,
+        "2": 48,
+        "3": 51
+      }
+    },
+    "Kakuro-hard-137-sumdiff.JSONL": {
+      "eq": {
+        "2": 486642,
+        "3": 399224,
+        "4": 3021380,
+        "5": 950015,
+        "6": 1574235,
+        "9": 724292
+      },
+      "neq": {
+        "9": 581748,
+        "4": 761787,
+        "2": 34958,
+        "3": 88218,
+        "6": 524323,
+        "5": 302383
+      }
+    },
+    "Kakuro-medium-035-sumdiff.JSONL": {
+      "eq": {
+        "2": 279,
+        "3": 575,
+        "5": 1069,
+        "4": 431
+      },
+      "neq": {
+        "5": 413,
+        "2": 154,
+        "3": 145,
+        "4": 156
+      }
+    },
+    "Kakuro-medium-062-sumdiff.JSONL": {
+      "eq": {
+        "2": 164,
+        "3": 112,
+        "4": 110,
+        "5": 104,
+        "6": 56
+      },
+      "neq": {
+        "2": 40,
+        "5": 46,
+        "6": 32,
+        "3": 51,
+        "4": 34
+      }
+    },
+    "Kakuro-medium-086-sumdiff.JSONL": {
+      "eq": {
+        "2": 261,
+        "4": 287,
+        "3": 223,
+        "5": 127,
+        "6": 318
+      },
+      "neq": {
+        "2": 66,
+        "3": 70,
+        "6": 151,
+        "4": 78,
+        "5": 86
+      }
+    },
+    "Kakuro-medium-129-sumdiff.JSONL": {
+      "eq": {
+        "2": 139090,
+        "3": 217469,
+        "4": 233133,
+        "5": 890191,
+        "7": 570517
+      },
+      "neq": {
+        "7": 323831,
+        "2": 71676,
+        "5": 283645,
+        "3": 75823,
+        "4": 102288
+      }
+    },
+    "KnightTour-06-ext03.JSONL": {
+      "eq": {
+        "36": 454205
+      },
+      "neq": {
+        "36": 634066
+      }
+    },
+    "Purdey.JSONL": {
+      "eq": {
+        "4": 4
+      },
+      "neq": {
+        "4": 4
+      }
+    },
+    "Queens-0009-m1.JSONL": {
+      "eq": {
+        "9": 16862
+      },
+      "neq": {
+        "9": 11104
+      }
+    },
+    "Queens-0012-m1.JSONL": {
+      "eq": {
+        "12": 2686609
+      },
+      "neq": {
+        "12": 1542578
+      }
+    },
+    "SchurrLemma-012-9-mod.JSONL": {
+      "eq": {
+        "3": 7633288
+      },
+      "neq": {
+        "3": 3100266
+      }
+    },
+    "SchurrLemma-015-9-mod.JSONL": {
+      "eq": {
+        "3": 11743205
+      },
+      "neq": {
+        "3": 4033413
+      }
+    },
+    "SchurrLemma-020-9-mod.JSONL": {
+      "eq": {
+        "3": 9333000
+      },
+      "neq": {
+        "3": 1768338
+      }
+    },
+    "SchurrLemma-030-9-mod.JSONL": {
+      "eq": {
+        "3": 19860490
+      },
+      "neq": {
+        "3": 4374828
+      }
+    },
+    "SchurrLemma-050-9-mod.JSONL": {
+      "eq": {
+        "3": 52796970
+      },
+      "neq": {
+        "3": 9587808
+      }
+    },
+    "SchurrLemma-100-9-mod.JSONL": {
+      "eq": {
+        "3": 204446920
+      },
+      "neq": {
+        "3": 22620258
+      }
+    }
+  },
+  "per_file_domaine_size": {
+    "AllInterval-006.JSONL": {
+      "eq": {
+        "5": 1689,
+        "6": 2179,
+        "1": 4357,
+        "4": 838,
+        "3": 661,
+        "2": 715
+      },
+      "neq": {
+        "5": 1255,
+        "4": 684,
+        "3": 389,
+        "2": 249,
+        "6": 1894
+      }
+    },
+    "AllInterval-009.JSONL": {
+      "eq": {
+        "8": 1485965,
+        "9": 1954797,
+        "1": 2871236,
+        "7": 738654,
+        "6": 451751,
+        "5": 250472,
+        "4": 228695,
+        "3": 232541,
+        "2": 322034
+      },
+      "neq": {
+        "8": 1072628,
+        "7": 718562,
+        "6": 329244,
+        "5": 143100,
+        "4": 87030,
+        "3": 91317,
+        "2": 72192,
+        "9": 1468911
+      }
+    },
+    "Allergy.JSONL": {
+      "eq": {
+        "2": 1,
+        "3": 2,
+        "4": 1,
+        "1": 2
+      },
+      "neq": {
+        "2": 2,
+        "3": 2,
+        "4": 2
+      }
+    },
+    "Alpha.JSONL": {
+      "eq": {
+        "26": 802,
+        "1": 1771781,
+        "25": 7297,
+        "22": 820733,
+        "21": 1628379,
+        "23": 121743,
+        "20": 756207,
+        "19": 246211,
+        "18": 180044,
+        "24": 74820,
+        "17": 159817,
+        "16": 166109,
+        "15": 171970,
+        "14": 169264,
+        "13": 173073,
+        "12": 159095,
+        "11": 144629,
+        "10": 117814,
+        "9": 92152,
+        "8": 74989,
+        "7": 63453,
+        "6": 50741,
+        "5": 44510,
+        "3": 32068,
+        "4": 40602,
+        "2": 24491
+      },
+      "neq": {
+        "26": 413,
+        "25": 6987,
+        "21": 574852,
+        "23": 77351,
+        "20": 213628,
+        "19": 63610,
+        "22": 381232,
+        "18": 35028,
+        "24": 29686,
+        "17": 24007,
+        "16": 27006,
+        "15": 23093,
+        "14": 23220,
+        "13": 23016,
+        "12": 20581,
+        "11": 18133,
+        "3": 3023,
+        "9": 10484,
+        "4": 3661,
+        "5": 3738,
+        "7": 5617,
+        "10": 13604,
+        "6": 4408,
+        "8": 7677,
+        "2": 913
+      }
+    },
+    "Kakuro-hard-010-sumdiff.JSONL": {
+      "eq": {
+        "3": 163,
+        "6": 23,
+        "2": 287,
+        "4": 80,
+        "5": 59,
+        "8": 38,
+        "9": 3,
+        "7": 18,
+        "1": 261
+      },
+      "neq": {
+        "8": 7,
+        "5": 9,
+        "4": 15,
+        "6": 5,
+        "3": 20,
+        "9": 1,
+        "7": 7,
+        "2": 36
+      }
+    },
+    "Kakuro-hard-056-sumdiff.JSONL": {
+      "eq": {
+        "3": 405,
+        "2": 444,
+        "4": 212,
+        "6": 67,
+        "9": 35,
+        "5": 90,
+        "8": 46,
+        "7": 72,
+        "1": 570
+      },
+      "neq": {
+        "4": 25,
+        "5": 12,
+        "9": 6,
+        "3": 87,
+        "6": 21,
+        "8": 2,
+        "7": 13,
+        "2": 75
+      }
+    },
+    "Kakuro-hard-062-sumdiff.JSONL": {
+      "eq": {
+        "8": 39,
+        "3": 697,
+        "2": 666,
+        "4": 389,
+        "6": 139,
+        "5": 272,
+        "7": 65,
+        "9": 77,
+        "1": 821
+      },
+      "neq": {
+        "3": 115,
+        "9": 2,
+        "2": 107,
+        "5": 41,
+        "4": 57,
+        "8": 7,
+        "6": 18,
+        "7": 5
+      }
+    },
+    "Kakuro-hard-137-sumdiff.JSONL": {
+      "eq": {
+        "2": 4458133,
+        "3": 7180567,
+        "4": 7154674,
+        "6": 2493452,
+        "7": 1382311,
+        "5": 3826128,
+        "8": 938511,
+        "9": 629104,
+        "1": 15727627
+      },
+      "neq": {
+        "9": 136078,
+        "8": 150526,
+        "7": 281487,
+        "2": 557702,
+        "5": 751670,
+        "4": 1033784,
+        "3": 1028725,
+        "6": 515413
+      }
+    },
+    "Kakuro-medium-035-sumdiff.JSONL": {
+      "eq": {
+        "3": 1578,
+        "2": 1585,
+        "9": 511,
+        "6": 637,
+        "5": 1008,
+        "7": 502,
+        "8": 536,
+        "4": 1746,
+        "1": 3218
+      },
+      "neq": {
+        "8": 82,
+        "3": 309,
+        "2": 355,
+        "5": 268,
+        "9": 112,
+        "6": 91,
+        "7": 101,
+        "4": 145
+      }
+    },
+    "Kakuro-medium-062-sumdiff.JSONL": {
+      "eq": {
+        "8": 78,
+        "3": 467,
+        "2": 686,
+        "4": 193,
+        "5": 186,
+        "7": 65,
+        "9": 26,
+        "6": 109,
+        "1": 645
+      },
+      "neq": {
+        "7": 12,
+        "8": 15,
+        "5": 25,
+        "3": 72,
+        "9": 4,
+        "2": 121,
+        "4": 30,
+        "6": 17
+      }
+    },
+    "Kakuro-medium-086-sumdiff.JSONL": {
+      "eq": {
+        "7": 325,
+        "3": 867,
+        "1": 1927,
+        "8": 190,
+        "4": 625,
+        "2": 1293,
+        "5": 650,
+        "9": 89,
+        "6": 204
+      },
+      "neq": {
+        "2": 217,
+        "5": 102,
+        "9": 21,
+        "4": 101,
+        "7": 35,
+        "3": 149,
+        "6": 38,
+        "8": 39
+      }
+    },
+    "Kakuro-medium-129-sumdiff.JSONL": {
+      "eq": {
+        "3": 1992393,
+        "2": 1460614,
+        "4": 1535014,
+        "5": 1220602,
+        "9": 50766,
+        "6": 899256,
+        "7": 608166,
+        "8": 222966,
+        "1": 5221133
+      },
+      "neq": {
+        "9": 21993,
+        "2": 234234,
+        "7": 134708,
+        "6": 190788,
+        "3": 376762,
+        "8": 71518,
+        "4": 273235,
+        "5": 258560
+      }
+    },
+    "KnightTour-06-ext03.JSONL": {
+      "eq": {
+        "5": 1227352,
+        "9": 1297662,
+        "1": 24001927,
+        "17": 75,
+        "16": 778,
+        "14": 20754,
+        "2": 809024,
+        "7": 1666678,
+        "15": 4740,
+        "11": 492750,
+        "13": 74422,
+        "4": 953248,
+        "6": 1535413,
+        "10": 886725,
+        "12": 217624,
+        "3": 829459,
+        "8": 1590241
+      },
+      "neq": {
+        "18": 31,
+        "2": 116280,
+        "17": 70,
+        "16": 446,
+        "14": 11693,
+        "7": 542627,
+        "15": 2689,
+        "11": 220853,
+        "13": 40944,
+        "12": 108787,
+        "6": 451394,
+        "10": 364697,
+        "4": 192390,
+        "5": 307297,
+        "9": 495263,
+        "3": 147874,
+        "8": 565549
+      }
+    },
+    "Purdey.JSONL": {
+      "eq": {
+        "3": 11,
+        "4": 5,
+        "1": 8,
+        "2": 2
+      },
+      "neq": {
+        "4": 3,
+        "2": 1,
+        "3": 2
+      }
+    },
+    "Queens-0009-m1.JSONL": {
+      "eq": {
+        "9": 65,
+        "1": 148446,
+        "8": 430,
+        "7": 2141,
+        "6": 7135,
+        "5": 15381,
+        "4": 18795,
+        "3": 15440,
+        "2": 10441
+      },
+      "neq": {
+        "9": 72,
+        "8": 420,
+        "7": 1880,
+        "6": 5394,
+        "5": 9597,
+        "4": 9497,
+        "3": 5018,
+        "2": 1542
+      }
+    },
+    "Queens-0012-m1.JSONL": {
+      "eq": {
+        "12": 122,
+        "1": 32777729,
+        "11": 1193,
+        "10": 9547,
+        "9": 58161,
+        "8": 276049,
+        "7": 897656,
+        "6": 2049001,
+        "5": 3019904,
+        "4": 2905802,
+        "3": 2050408,
+        "2": 1301815
+      },
+      "neq": {
+        "12": 132,
+        "11": 1180,
+        "10": 8743,
+        "9": 49199,
+        "8": 204073,
+        "7": 603859,
+        "6": 1193048,
+        "5": 1530828,
+        "4": 1167589,
+        "3": 507746,
+        "2": 136460
+      }
+    },
+    "SchurrLemma-012-9-mod.JSONL": {
+      "eq": {
+        "9": 230,
+        "1": 17743914,
+        "8": 1729,
+        "7": 10675,
+        "6": 55675,
+        "5": 361603,
+        "4": 1540963,
+        "3": 4005523,
+        "2": 5336083
+      },
+      "neq": {
+        "9": 99,
+        "8": 720,
+        "7": 4536,
+        "6": 24192,
+        "5": 151200,
+        "4": 604800,
+        "3": 1270080,
+        "2": 1088640
+      }
+    },
+    "SchurrLemma-015-9-mod.JSONL": {
+      "eq": {
+        "9": 329,
+        "1": 22059864,
+        "8": 2569,
+        "7": 16753,
+        "6": 93721,
+        "5": 441985,
+        "4": 2247313,
+        "3": 7569553,
+        "2": 10412113
+      },
+      "neq": {
+        "9": 126,
+        "8": 936,
+        "7": 6048,
+        "6": 33264,
+        "5": 151200,
+        "4": 665280,
+        "3": 1814400,
+        "2": 1814400
+      }
+    },
+    "SchurrLemma-020-9-mod.JSONL": {
+      "eq": {
+        "9": 522,
+        "1": 11230074,
+        "8": 4221,
+        "7": 28899,
+        "6": 171243,
+        "5": 862227,
+        "4": 3580803,
+        "3": 11836323,
+        "2": 2280483
+      },
+      "neq": {
+        "9": 171,
+        "8": 1296,
+        "7": 8568,
+        "6": 48384,
+        "5": 226800,
+        "4": 846720,
+        "3": 2177280
+      }
+    },
+    "SchurrLemma-030-9-mod.JSONL": {
+      "eq": {
+        "9": 1022,
+        "1": 18358974,
+        "8": 8551,
+        "7": 61399,
+        "6": 383743,
+        "5": 2047447,
+        "4": 9060103,
+        "3": 31982023,
+        "2": 4705543
+      },
+      "neq": {
+        "9": 261,
+        "8": 2016,
+        "7": 13608,
+        "6": 78624,
+        "5": 378000,
+        "4": 1451520,
+        "3": 4173120
+      }
+    },
+    "SchurrLemma-050-9-mod.JSONL": {
+      "eq": {
+        "9": 2472,
+        "1": 32616774,
+        "8": 21261,
+        "7": 158799,
+        "6": 1035543,
+        "5": 5778687,
+        "4": 26822703,
+        "3": 99489423,
+        "2": 9918543
+      },
+      "neq": {
+        "9": 441,
+        "8": 3456,
+        "7": 23688,
+        "6": 139104,
+        "5": 680400,
+        "4": 2661120,
+        "3": 7801920
+      }
+    },
+    "SchurrLemma-100-9-mod.JSONL": {
+      "eq": {
+        "9": 8722,
+        "1": 68261274,
+        "8": 76661,
+        "7": 591299,
+        "6": 3988043,
+        "5": 23044787,
+        "4": 110919203,
+        "3": 427017923,
+        "2": 22951043
+      },
+      "neq": {
+        "9": 891,
+        "8": 7056,
+        "7": 48888,
+        "6": 290304,
+        "5": 1436400,
+        "4": 5685120,
+        "3": 16873920
+      }
+    }
+  },
+  "per_file_stats": {
+    "AllInterval-006.JSONL": {
+      "File": "AllInterval-006.JSONL",
+      "Num_Entries": 2539,
+      "Total_Variables": 14910,
+      "Total_Domaine": 54681,
+      "Variables_Avg": 5.872390705001969,
+      "Variables_Median": 6,
+      "Variables_Std": 0.3336542564214284,
+      "Variables_Min": 5,
+      "Variables_Max": 6,
+      "Domaine_Avg": 3.667404426559356,
+      "Domaine_Median": 4.0,
+      "Domaine_Std": 2.034340635442666,
+      "Domaine_Min": 1,
+      "Domaine_Max": 6,
+      "Num_Before_Eq_After": 1221,
+      "Num_Before_NotEq_After": 1318
+    },
+    "AllInterval-009.JSONL": {
+      "File": "AllInterval-009.JSONL",
+      "Num_Entries": 1403192,
+      "Total_Variables": 12519129,
+      "Total_Domaine": 74030620,
+      "Variables_Avg": 8.921893083769007,
+      "Variables_Median": 9.0,
+      "Variables_Std": 0.2683397582690234,
+      "Variables_Min": 8,
+      "Variables_Max": 9,
+      "Domaine_Avg": 5.913400205397676,
+      "Domaine_Median": 7,
+      "Domaine_Std": 3.1607553099796672,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 729818,
+      "Num_Before_NotEq_After": 673374
+    },
+    "Allergy.JSONL": {
+      "File": "Allergy.JSONL",
+      "Num_Entries": 3,
+      "Total_Variables": 12,
+      "Total_Domaine": 32,
+      "Variables_Avg": 4,
+      "Variables_Median": 4,
+      "Variables_Std": 0.0,
+      "Variables_Min": 4,
+      "Variables_Max": 4,
+      "Domaine_Avg": 2.6666666666666665,
+      "Domaine_Median": 3.0,
+      "Domaine_Std": 1.0274023338281628,
+      "Domaine_Min": 1,
+      "Domaine_Max": 4,
+      "Num_Before_Eq_After": 1,
+      "Num_Before_NotEq_After": 2
+    },
+    "Alpha.JSONL": {
+      "File": "Alpha.JSONL",
+      "Num_Entries": 341837,
+      "Total_Variables": 8887762,
+      "Total_Domaine": 133732662,
+      "Variables_Avg": 26,
+      "Variables_Median": 26,
+      "Variables_Std": 0.0,
+      "Variables_Min": 26,
+      "Variables_Max": 26,
+      "Domaine_Avg": 15.046832037131507,
+      "Domaine_Median": 20.0,
+      "Domaine_Std": 8.11269481667899,
+      "Domaine_Min": 1,
+      "Domaine_Max": 26,
+      "Num_Before_Eq_After": 251433,
+      "Num_Before_NotEq_After": 90404
+    },
+    "Kakuro-hard-010-sumdiff.JSONL": {
+      "File": "Kakuro-hard-010-sumdiff.JSONL",
+      "Num_Entries": 289,
+      "Total_Variables": 1032,
+      "Total_Domaine": 2915,
+      "Variables_Avg": 3.5709342560553634,
+      "Variables_Median": 3,
+      "Variables_Std": 1.2405990401321032,
+      "Variables_Min": 2,
+      "Variables_Max": 6,
+      "Domaine_Avg": 2.824612403100775,
+      "Domaine_Median": 2.0,
+      "Domaine_Std": 1.8737411394108263,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 218,
+      "Num_Before_NotEq_After": 71
+    },
+    "Kakuro-hard-056-sumdiff.JSONL": {
+      "File": "Kakuro-hard-056-sumdiff.JSONL",
+      "Num_Entries": 559,
+      "Total_Variables": 2182,
+      "Total_Domaine": 6418,
+      "Variables_Avg": 3.9033989266547406,
+      "Variables_Median": 4,
+      "Variables_Std": 1.3150998261893325,
+      "Variables_Min": 2,
+      "Variables_Max": 6,
+      "Domaine_Avg": 2.9413382218148487,
+      "Domaine_Median": 3.0,
+      "Domaine_Std": 1.9461696254426424,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 398,
+      "Num_Before_NotEq_After": 161
+    },
+    "Kakuro-hard-062-sumdiff.JSONL": {
+      "File": "Kakuro-hard-062-sumdiff.JSONL",
+      "Num_Entries": 979,
+      "Total_Variables": 3517,
+      "Total_Domaine": 10663,
+      "Variables_Avg": 3.59244126659857,
+      "Variables_Median": 4,
+      "Variables_Std": 1.0924497428376168,
+      "Variables_Min": 2,
+      "Variables_Max": 5,
+      "Domaine_Avg": 3.0318453227182256,
+      "Domaine_Median": 3,
+      "Domaine_Std": 1.8684664062703116,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 718,
+      "Num_Before_NotEq_After": 261
+    },
+    "Kakuro-hard-137-sumdiff.JSONL": {
+      "File": "Kakuro-hard-137-sumdiff.JSONL",
+      "Num_Entries": 9449205,
+      "Total_Variables": 48245892,
+      "Total_Domaine": 151328705,
+      "Variables_Avg": 5.105814933637275,
+      "Variables_Median": 4,
+      "Variables_Std": 1.8777318077896683,
+      "Variables_Min": 2,
+      "Variables_Max": 9,
+      "Domaine_Avg": 3.1366132685452266,
+      "Domaine_Median": 3.0,
+      "Domaine_Std": 2.0461808255303624,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 7155788,
+      "Num_Before_NotEq_After": 2293417
+    },
+    "Kakuro-medium-035-sumdiff.JSONL": {
+      "File": "Kakuro-medium-035-sumdiff.JSONL",
+      "Num_Entries": 3222,
+      "Total_Variables": 12784,
+      "Total_Domaine": 45843,
+      "Variables_Avg": 3.96772191185599,
+      "Variables_Median": 4.0,
+      "Variables_Std": 1.1045084346981575,
+      "Variables_Min": 2,
+      "Variables_Max": 5,
+      "Domaine_Avg": 3.5859668335419275,
+      "Domaine_Median": 3.0,
+      "Domaine_Std": 2.3648632971948684,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 2354,
+      "Num_Before_NotEq_After": 868
+    },
+    "Kakuro-medium-062-sumdiff.JSONL": {
+      "File": "Kakuro-medium-062-sumdiff.JSONL",
+      "Num_Entries": 749,
+      "Total_Variables": 2751,
+      "Total_Domaine": 8132,
+      "Variables_Avg": 3.6728971962616823,
+      "Variables_Median": 4,
+      "Variables_Std": 1.3675916154128565,
+      "Variables_Min": 2,
+      "Variables_Max": 6,
+      "Domaine_Avg": 2.9560159941839332,
+      "Domaine_Median": 2,
+      "Domaine_Std": 1.9274064570764966,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 546,
+      "Num_Before_NotEq_After": 203
+    },
+    "Kakuro-medium-086-sumdiff.JSONL": {
+      "File": "Kakuro-medium-086-sumdiff.JSONL",
+      "Num_Entries": 1667,
+      "Total_Variables": 6872,
+      "Total_Domaine": 21453,
+      "Variables_Avg": 4.122375524895021,
+      "Variables_Median": 4,
+      "Variables_Std": 1.4827614506214273,
+      "Variables_Min": 2,
+      "Variables_Max": 6,
+      "Domaine_Avg": 3.1217986030267753,
+      "Domaine_Median": 2.0,
+      "Domaine_Std": 2.1057965957950078,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 1216,
+      "Num_Before_NotEq_After": 451
+    },
+    "Kakuro-medium-129-sumdiff.JSONL": {
+      "File": "Kakuro-medium-129-sumdiff.JSONL",
+      "Num_Entries": 2907663,
+      "Total_Variables": 14772708,
+      "Total_Domaine": 45098185,
+      "Variables_Avg": 5.080612161725757,
+      "Variables_Median": 5,
+      "Variables_Std": 1.5475928865641524,
+      "Variables_Min": 2,
+      "Variables_Max": 7,
+      "Domaine_Avg": 3.0528041981199383,
+      "Domaine_Median": 3.0,
+      "Domaine_Std": 2.0476638613106237,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 2050400,
+      "Num_Before_NotEq_After": 857263
+    },
+    "KnightTour-06-ext03.JSONL": {
+      "File": "KnightTour-06-ext03.JSONL",
+      "Num_Entries": 1088271,
+      "Total_Variables": 39177756,
+      "Total_Domaine": 128177796,
+      "Variables_Avg": 36,
+      "Variables_Median": 36,
+      "Variables_Std": 0.0,
+      "Variables_Min": 36,
+      "Variables_Max": 36,
+      "Domaine_Avg": 3.2716982565310784,
+      "Domaine_Median": 1.0,
+      "Domaine_Std": 3.286645422554455,
+      "Domaine_Min": 1,
+      "Domaine_Max": 18,
+      "Num_Before_Eq_After": 454205,
+      "Num_Before_NotEq_After": 634066
+    },
+    "Purdey.JSONL": {
+      "File": "Purdey.JSONL",
+      "Num_Entries": 8,
+      "Total_Variables": 32,
+      "Total_Domaine": 85,
+      "Variables_Avg": 4,
+      "Variables_Median": 4.0,
+      "Variables_Std": 0.0,
+      "Variables_Min": 4,
+      "Variables_Max": 4,
+      "Domaine_Avg": 2.65625,
+      "Domaine_Median": 3.0,
+      "Domaine_Std": 1.107061848994897,
+      "Domaine_Min": 1,
+      "Domaine_Max": 4,
+      "Num_Before_Eq_After": 4,
+      "Num_Before_NotEq_After": 4
+    },
+    "Queens-0009-m1.JSONL": {
+      "File": "Queens-0009-m1.JSONL",
+      "Num_Entries": 27966,
+      "Total_Variables": 251694,
+      "Total_Domaine": 583198,
+      "Variables_Avg": 9,
+      "Variables_Median": 9.0,
+      "Variables_Std": 0.0,
+      "Variables_Min": 9,
+      "Variables_Max": 9,
+      "Domaine_Avg": 2.317091388749831,
+      "Domaine_Median": 1.0,
+      "Domaine_Std": 1.8048278528458634,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 16862,
+      "Num_Before_NotEq_After": 11104
+    },
+    "Queens-0012-m1.JSONL": {
+      "File": "Queens-0012-m1.JSONL",
+      "Num_Entries": 4229187,
+      "Total_Variables": 50750244,
+      "Total_Domaine": 117358131,
+      "Variables_Avg": 12,
+      "Variables_Median": 12,
+      "Variables_Std": 0.0,
+      "Variables_Min": 12,
+      "Variables_Max": 12,
+      "Domaine_Avg": 2.3124643696294345,
+      "Domaine_Median": 1.0,
+      "Domaine_Std": 1.9899946001711042,
+      "Domaine_Min": 1,
+      "Domaine_Max": 12,
+      "Num_Before_Eq_After": 2686609,
+      "Num_Before_NotEq_After": 1542578
+    },
+    "SchurrLemma-012-9-mod.JSONL": {
+      "File": "SchurrLemma-012-9-mod.JSONL",
+      "Num_Entries": 10733554,
+      "Total_Variables": 32200662,
+      "Total_Domaine": 58175468,
+      "Variables_Avg": 3,
+      "Variables_Median": 3.0,
+      "Variables_Std": 0.0,
+      "Variables_Min": 3,
+      "Variables_Max": 3,
+      "Domaine_Avg": 1.806654409775799,
+      "Domaine_Median": 1.0,
+      "Domaine_Std": 1.068692387929075,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 7633288,
+      "Num_Before_NotEq_After": 3100266
+    },
+    "SchurrLemma-015-9-mod.JSONL": {
+      "File": "SchurrLemma-015-9-mod.JSONL",
+      "Num_Entries": 15776618,
+      "Total_Variables": 47329854,
+      "Total_Domaine": 90234698,
+      "Variables_Avg": 3,
+      "Variables_Median": 3.0,
+      "Variables_Std": 0.0,
+      "Variables_Min": 3,
+      "Variables_Max": 3,
+      "Domaine_Avg": 1.9065070008455973,
+      "Domaine_Median": 2.0,
+      "Domaine_Std": 1.0356987713317054,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 11743205,
+      "Num_Before_NotEq_After": 4033413
+    },
+    "SchurrLemma-020-9-mod.JSONL": {
+      "File": "SchurrLemma-020-9-mod.JSONL",
+      "Num_Entries": 11101338,
+      "Total_Variables": 33304014,
+      "Total_Domaine": 82617480,
+      "Variables_Avg": 3,
+      "Variables_Median": 3.0,
+      "Variables_Std": 0.0,
+      "Variables_Min": 3,
+      "Variables_Max": 3,
+      "Domaine_Avg": 2.4807063797174718,
+      "Domaine_Median": 3.0,
+      "Domaine_Std": 1.2221239699335666,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 9333000,
+      "Num_Before_NotEq_After": 1768338
+    },
+    "SchurrLemma-030-9-mod.JSONL": {
+      "File": "SchurrLemma-030-9-mod.JSONL",
+      "Num_Entries": 24235318,
+      "Total_Variables": 72705954,
+      "Total_Domaine": 193804550,
+      "Variables_Avg": 3,
+      "Variables_Median": 3.0,
+      "Variables_Std": 0.0,
+      "Variables_Min": 3,
+      "Variables_Max": 3,
+      "Domaine_Avg": 2.6655939347140674,
+      "Domaine_Median": 3.0,
+      "Domaine_Std": 1.1484590233193674,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 19860490,
+      "Num_Before_NotEq_After": 4374828
+    },
+    "SchurrLemma-050-9-mod.JSONL": {
+      "File": "SchurrLemma-050-9-mod.JSONL",
+      "Num_Entries": 62384778,
+      "Total_Variables": 187154334,
+      "Total_Domaine": 533107860,
+      "Variables_Avg": 3,
+      "Variables_Median": 3.0,
+      "Variables_Std": 0.0,
+      "Variables_Min": 3,
+      "Variables_Max": 3,
+      "Domaine_Avg": 2.848493265456519,
+      "Domaine_Median": 3.0,
+      "Domaine_Std": 1.048183195484902,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 52796970,
+      "Num_Before_NotEq_After": 9587808
+    },
+    "SchurrLemma-100-9-mod.JSONL": {
+      "File": "SchurrLemma-100-9-mod.JSONL",
+      "Num_Entries": 227067178,
+      "Total_Variables": 681201534,
+      "Total_Domaine": 2065569760,
+      "Variables_Avg": 3,
+      "Variables_Median": 3.0,
+      "Variables_Std": 0.0,
+      "Variables_Min": 3,
+      "Variables_Max": 3,
+      "Domaine_Avg": 3.0322447277401463,
+      "Domaine_Median": 3.0,
+      "Domaine_Std": 0.9074969884836513,
+      "Domaine_Min": 1,
+      "Domaine_Max": 9,
+      "Num_Before_Eq_After": 204446920,
+      "Num_Before_NotEq_After": 22620258
+    }
+  }
+}

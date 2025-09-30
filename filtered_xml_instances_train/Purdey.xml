@@ -1,0 +1,23 @@
+<instance format="XCSP3" type="CSP">
+  <variables>
+    <var id="flour" type="symbolic"> Boyds Garveys Logans Navaroos </var>
+    <var as="flour" id="kerozene" type="symbolic"/>
+    <var as="flour" id="cloth" type="symbolic"/>
+    <var as="flour" id="sugar" type="symbolic"/>
+    <var as="flour" id="cash" type="symbolic"/>
+    <var as="flour" id="credit" type="symbolic"/>
+    <var as="flour" id="ham" type="symbolic"/>
+    <var as="flour" id="peas" type="symbolic"/>
+  </variables>
+  <constraints>
+    <allDifferent> flour kerozene cloth sugar </allDifferent>
+    <allDifferent> cash credit ham peas </allDifferent>
+    <intension> ne(peas,Logans) </intension>
+    <intension> ne(peas,kerozene) </intension>
+    <intension> or(eq(kerozene,Boyds),eq(cloth,Boyds)) </intension>
+    <intension> or(eq(kerozene,Garveys),eq(cloth,Garveys)) </intension>
+    <intension> eq(ham,flour) </intension>
+    <intension> eq(credit,cloth) </intension>
+    <intension> ne(credit,Boyds) </intension>
+  </constraints>
+</instance>
