@@ -59,6 +59,8 @@ public class AtLeastNValueDC extends AbstractCPConstraint {
     private int[] unBoundIdx;
     private int nUnBound;
 
+    public static int nbCallPropagate = 0;
+
 
     public AtLeastNValueDC(CPIntVar[] x, CPIntVar nVal) {
         super(x[0].getSolver());
@@ -237,6 +239,8 @@ public class AtLeastNValueDC extends AbstractCPConstraint {
 
     @Override
     public void propagate() {
+        nbCallPropagate++;
+
         saveVariablesDomains("before");
 
         nUnBound = 0;

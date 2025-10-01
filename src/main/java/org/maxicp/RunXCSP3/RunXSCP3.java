@@ -1,5 +1,6 @@
     package org.maxicp.RunXCSP3;
 
+    import org.maxicp.cp.engine.constraints.AllDifferentAI;
     import org.maxicp.cp.engine.constraints.AtLeastNValueDC;
     import org.maxicp.modeling.algebra.bool.Eq;
     import org.maxicp.modeling.algebra.bool.NotEq;
@@ -11,6 +12,8 @@
     import org.newsclub.net.unix.AFUNIXSocket;
     import org.newsclub.net.unix.AFUNIXSocketAddress;
 
+    import javax.json.JsonObject;
+    import javax.json.stream.JsonParser;
     import java.io.*;
     import java.nio.charset.StandardCharsets;
     import java.util.*;
@@ -22,15 +25,19 @@
 
     public class RunXSCP3 {
 
-        private static AFUNIXSocket socket;
-
         private static class RunResult {
             SearchStatistics stats;
             long executionTimeMillis;
+            long javaTimeMillis;
+            long pythonTimeMillis;
+            int nbCallPropagate;
 
-            RunResult(SearchStatistics stats, long executionTimeMillis) {
+            RunResult(SearchStatistics stats, long executionTimeMillis, long javaTimeMillis, long pythonTimeMillis, int nbCallPropagate) {
                 this.stats = stats;
                 this.executionTimeMillis = executionTimeMillis;
+                this.javaTimeMillis = javaTimeMillis;
+                this.pythonTimeMillis = pythonTimeMillis;
+                this.nbCallPropagate = nbCallPropagate;
             }
         }
 
@@ -41,44 +48,73 @@
         // ---- Use the server with the AI model -----
 
         public static void startServer() throws InterruptedException, IOException {
-            // Start the Python server
             Process pythonServer = new ProcessBuilder()
                     .command("bash", "-c", "source ../python/env/bin/activate && python3 ../python/use_model_in_java_tiny.py")
                     .inheritIO()
                     .start();
 
-            // Wait to ensure the server is fully initialized
             Thread.sleep(20000);
 
-            File socketFile = new File("/tmp/unix_socket_predictor");
-            socket = AFUNIXSocket.newInstance();
-            socket.connect(new AFUNIXSocketAddress(socketFile));
+            try {
+                SocketManager.getInstance().sendNoResponse("{\"ping\": true}");
+            } catch (IOException e) {
+                System.err.println("Unable to connect to python socket after starting server: " + e.getMessage());
+                throw e;
+            }
         }
 
         public static void stopServer() throws IOException, InterruptedException {
-            if (socket != null && !socket.isClosed()) {
-                OutputStream out = socket.getOutputStream();
-                out.write("{\"kill\": true}\n".getBytes(StandardCharsets.UTF_8));
-                out.flush();
-                socket.close();
+            try {
+                SocketManager.getInstance().sendNoResponse("{\"kill\": true}");
+            } catch (IOException e) {
+                System.err.println("Warning: could not send kill to python server: " + e.getMessage());
+            } finally {
+                SocketManager.getInstance().closeQuietly();
             }
 
-            Thread.sleep(3000);
+            Thread.sleep(2000);
         }
 
         public static void changeThreshold(float threshold) throws IOException, InterruptedException {
-            if (socket == null || socket.isClosed()) {
-                throw new IllegalStateException("Socket not connected");
+            String json = String.format(Locale.US, "{\"threshold\": %.2f}", threshold);
+            try {
+                SocketManager.getInstance().sendNoResponse(json);
+            } catch (IOException e) {
+                throw e;
             }
 
-            OutputStream out = socket.getOutputStream();
-            String json = String.format(Locale.US, "{\"threshold\": %.2f}\n", threshold);
-            out.write(json.getBytes(StandardCharsets.UTF_8));
-            out.flush();
-
-            // Wait for the server to process the change
-            Thread.sleep(10000);
+            Thread.sleep(2000);
         }
+
+        public static long getTimePython() throws IOException {
+            String json = "{\"time\": true}";
+            String line;
+            try {
+                line = SocketManager.getInstance().sendAndReceive(json);
+            } catch (IOException e) {
+                throw e;
+            }
+
+            if (line != null) {
+                JsonObject response = javax.json.Json.createReader(new StringReader(line)).readObject();
+                return response.getJsonNumber("totalTime").longValue();
+            } else {
+                System.out.println("No response from AI model");
+                return -1;
+            }
+        }
+
+        public static void resetTimeAI() throws IOException, InterruptedException {
+            String json = "{\"reset_time\": true}";
+            try {
+                SocketManager.getInstance().sendNoResponse(json);
+            } catch (IOException e) {
+                throw e;
+            }
+
+            Thread.sleep(2000);
+        }
+
 
         // ---- Run instances with AI model support -----
 
@@ -89,8 +125,6 @@
          * @throws Exception
          */
         public static RunResult runOneInstanceAI(String instanceFile) throws Exception {
-
-            long start = System.currentTimeMillis();
 
             XCSP3.XCSP3LoadedInstance instance = load(instanceFile);
             IntExpression[] q = instance.decisionVars();
@@ -116,6 +150,17 @@
 
             final SearchStatistics[] result = new SearchStatistics[1];
 
+            AllDifferentAI.nbCallPropagate = 0;     // Count the number of calls to the propagate method
+
+            resetTimeAI();
+
+            Stopwatch allExecutionTimer = new Stopwatch();      // Count the total execution time including Java and Python (and socket communication)
+            allExecutionTimer.reset();
+            allExecutionTimer.start();
+
+            GlobalTimers.allJavaTimer.reset();        // Count the total execution time in Java only (without Python and socket communication)
+            GlobalTimers.allJavaTimer.start();
+
             try {
                 // Run the XCSP3 instance with the AI model
                 instance.md().runCP(cp -> {
@@ -130,9 +175,17 @@
                 result[0] = new SearchStatistics();
             }
 
-            long end = System.currentTimeMillis();
+            allExecutionTimer.pause();
+            long totalExecutionTime = allExecutionTimer.getElapsedTimeMillis();
 
-            return new RunResult(result[0], end - start);
+            GlobalTimers.allJavaTimer.pause();
+            long totalJavaTime = GlobalTimers.allJavaTimer.getElapsedTimeMillis();
+
+            long totalPythonTime = getTimePython();
+
+            int nbCallPropagate = AllDifferentAI.nbCallPropagate;
+
+            return new RunResult(result[0], totalExecutionTime, totalJavaTime, totalPythonTime, nbCallPropagate);
         }
 
         /**
@@ -181,9 +234,7 @@
 
             for (File file : files) {
                 try {
-                    Thread.sleep(5000);
                     runOneInstanceDifferentThresholdAI(file.getAbsolutePath());
-                    Thread.sleep(5000);
                 } catch (Exception e) {
                     System.err.println("Error running instance: " + file.getName());
                     e.printStackTrace();
@@ -220,7 +271,11 @@
                 AtLeastNValueDC.setCurrentInstanceName(instanceName);
             }
 
-            long start = System.currentTimeMillis();
+            AtLeastNValueDC.nbCallPropagate = 0;     // Count the number of calls to the propagate method
+
+            Stopwatch allExecutionTimer = new Stopwatch();
+            allExecutionTimer.reset();
+            allExecutionTimer.start();
 
             XCSP3.XCSP3LoadedInstance instance = load(instanceFile);
             IntExpression[] q = instance.decisionVars();
@@ -253,8 +308,12 @@
                 result[0] = stats;
             });
 
-            long end = System.currentTimeMillis();
-            return new RunResult(result[0], end - start);
+            allExecutionTimer.pause();
+            long totalExecutionTime = allExecutionTimer.getElapsedTimeMillis();
+
+            int nbCallPropagate = AtLeastNValueDC.nbCallPropagate;
+
+            return new RunResult(result[0], totalExecutionTime, totalExecutionTime, 0L, nbCallPropagate);
 
         }
 
@@ -322,19 +381,22 @@
                  PrintWriter out = new PrintWriter(bw)) {
 
                 if (!fileExists) {
-                    out.println("Instance,Nodes,Failures,Solutions,Completed,ExecutionTime(ms),Threshold");
+                    out.println("Instance,Nodes,Failures,Solutions,Completed,TotalExecutionTimeMillis,JavaExecutionTimeMillis,PythonAIExecutionTimeMillis,NumberOfCallsToPropagate,Threshold");
                 }
 
                 String baseName = instanceName.endsWith(".xml") ?
                         instanceName.substring(0, instanceName.length() - 4) : instanceName;
 
-                out.printf(Locale.US, "%s,%d,%d,%d,%b,%d,%.2f%n",
+                out.printf(Locale.US, "%s,%d,%d,%d,%b,%d,%d,%d,%d,%.2f%n",
                         baseName,
                         runResult.stats.numberOfNodes(),
                         runResult.stats.numberOfFailures(),
                         runResult.stats.numberOfSolutions(),
                         runResult.stats.isCompleted(),
                         runResult.executionTimeMillis,
+                        runResult.javaTimeMillis,
+                        runResult.pythonTimeMillis,
+                        runResult.nbCallPropagate,
                         threshold);
 
 

@@ -9,7 +9,7 @@ from torch_geometric.utils import to_undirected
 import socket
 import logging
 import os
-import sys
+import time
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -147,6 +147,9 @@ MODEL_PATH = "../data/model.pth"
 THRESHOLD = 0.5
 SOCKET_PATH = "/tmp/unix_socket_predictor"
 
+# Time
+totalTime = 0.0
+
 # Init ModelPredictor
 logger.info("Loading model...")
 predictor = ModelPredictor(MODEL_PATH, threshold=THRESHOLD)
@@ -154,10 +157,11 @@ predictor = ModelPredictor(MODEL_PATH, threshold=THRESHOLD)
 # Unix Domain Socket server
 def handle_client(conn):
     global stop_server
+    global totalTime
     buffer = b""
     try:
         while True:
-            data = conn.recv(256)
+            data = conn.recv(8192)
             if not data:
                 break
             buffer += data
@@ -181,7 +185,21 @@ def handle_client(conn):
                     logger.info(f"Threshold updated to {predictor.threshold}")
                     continue
 
+                if "time" in json_data:
+                    response = json.dumps({"totalTime": totalTime * 1000}).encode("utf-8") + b"\n"
+                    conn.sendall(response)
+                    continue
+
+                if "reset_time" in json_data:
+                    totalTime = 0.0
+                    logger.info("Total time reset to 0.0")
+                    continue
+                
+                start_time = time.time()
                 result = predictor.predict(json_data)
+                end_time = time.time()
+                totalTime += end_time - start_time
+
                 response = json.dumps(result).encode("utf-8") + b"\n"
                 conn.sendall(response)
     except Exception as e:
