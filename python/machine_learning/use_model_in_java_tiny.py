@@ -129,7 +129,7 @@ class ModelPredictor:
             return {}
 
         data = data
-        with torch.no_grad():
+        with torch.inference_mode():
             logits = self.model(data)
             probs = torch.sigmoid(logits)
             predictions = (probs > self.threshold).cpu().numpy()
