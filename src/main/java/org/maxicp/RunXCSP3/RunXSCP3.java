@@ -131,10 +131,6 @@
 
             // first fail branching (minimal domain size)
             Supplier<Runnable[]> branching = () -> {
-                if (Thread.currentThread().isInterrupted()) {
-                    System.out.println("Interruption detected during branching. Stopping search.");
-                    throw new RuntimeException("Interrupted");
-                }
 
                 IntExpression qs = selectMin(q,
                         qi -> qi.size() > 1,
@@ -152,7 +148,7 @@
 
             AllDifferentAI.nbCallPropagate = 0;     // Count the number of calls to the propagate method
 
-            resetTimeAI();
+            resetTimeAI();      // Reset the time spent in Python
 
             Stopwatch allExecutionTimer = new Stopwatch();      // Count the total execution time including Java and Python (and socket communication)
             allExecutionTimer.reset();
@@ -282,10 +278,6 @@
 
             // first fail branching (minimal domain size)
             Supplier<Runnable[]> branching = () -> {
-                if (Thread.currentThread().isInterrupted()) {
-                    System.out.println("Interruption detected during branching. Stopping search.");
-                    throw new RuntimeException("Interrupted");
-                }
 
                 IntExpression qs = selectMin(q,
                         qi -> qi.size() > 1,

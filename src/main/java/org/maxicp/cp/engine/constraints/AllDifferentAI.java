@@ -13,8 +13,8 @@ import java.io.*;
 public class AllDifferentAI extends AbstractCPConstraint {
 
     private CPIntVar[] x;
-    private int[] nonfixed; // keep the indexes of the unfixed vars
-    private StateInt nbNonFixed;  // number of unfixed vars
+    int[] nonfixed; // keep the indexes of the unfixed vars
+    StateInt nbNonFixed;  // number of unfixed vars
     public static int nbCallPropagate = 0;  // count the number of calls to propagate
 
     public AllDifferentAI(CPIntVar... x) {
@@ -28,22 +28,16 @@ public class AllDifferentAI extends AbstractCPConstraint {
 
     @Override
     public void post() {
+
+        // check for fixed variables
+        checker();
+
+        // subscribe to the domain changes of the variables on the non-fixed ones
         int s = nbNonFixed.value();
         for (int k = s - 1; k >= 0 ; k--) {
             int idx = nonfixed[k];
-            if (!x[idx].isFixed()) {
-                x[idx].propagateOnDomainChange(this);
-            } else {
-                // Swap
-                s--;
-                nonfixed[k] = nonfixed[s];
-                nonfixed[s] = idx;
-            }
+            x[idx].propagateOnDomainChange(this);
         }
-        nbNonFixed.setValue(s);
-
-        // Inconsistency Exception can be triggered in some case
-        checker();
 
     }
 
@@ -101,18 +95,27 @@ public class AllDifferentAI extends AbstractCPConstraint {
     }
 
     public void checker() {
+        boolean findFixed = true;
         int s = nbNonFixed.value();
-        for (int k = s - 1; k >= 0 ; k--) {
-            int idx = nonfixed[k];
-            if (x[idx].isFixed()) {
-                int fixedValue = x[idx].min();
-                for (int j = 0; j < k; j++) {
-                    x[nonfixed[j]].remove(fixedValue);
+
+        while (findFixed) {
+            findFixed = false;
+            for (int k = s - 1; k >= 0; k--) {
+                int idx = nonfixed[k];
+                if (x[idx].isFixed()) {
+                    findFixed = true;
+
+                    // Swap
+                    s--;
+                    nonfixed[k] = nonfixed[s];
+                    nonfixed[s] = idx;
+
+                    // Remove the fixed value from other domains
+                    int fixedValue = x[idx].min();
+                    for (int j = 0; j < s; j++) {
+                        x[nonfixed[j]].remove(fixedValue);
+                    }
                 }
-                // Swap
-                s--;
-                nonfixed[k] = nonfixed[s];
-                nonfixed[s] = idx;
             }
         }
         nbNonFixed.setValue(s);
