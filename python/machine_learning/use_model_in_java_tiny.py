@@ -194,6 +194,10 @@ def handle_client(conn):
                     totalTime = 0.0
                     logger.info("Python time reset to 0.0")
                     continue
+
+                if "ping" in json_data:
+                    logger.info("Received ping")
+                    continue
                 
                 start_time = time.time()
                 result = predictor.predict(json_data)
