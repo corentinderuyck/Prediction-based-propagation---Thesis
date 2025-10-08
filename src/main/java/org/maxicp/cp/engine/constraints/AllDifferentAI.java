@@ -49,6 +49,11 @@ public class AllDifferentAI extends AbstractCPConstraint {
         // remove fixed values from other domains
         checker();
 
+        // if all variables are fixed, nothing to do
+        if (nbNonFixed.value() == 0) {
+            return;
+        }
+
         // Build the Graph representation
         JSONObject graph = new JSONObject();
         for (int i = 0; i < x.length; i++) {
@@ -64,11 +69,6 @@ public class AllDifferentAI extends AbstractCPConstraint {
                 values.put(dom[j]);
             }
             graph.put(String.valueOf(i), values);
-        }
-
-        // if all variables are fixed, nothing to do
-        if (graph.length() == 0) {
-            return;
         }
 
         // Send the domain to the AI model and get the response
@@ -91,7 +91,6 @@ public class AllDifferentAI extends AbstractCPConstraint {
             e.printStackTrace();
             SocketManager.getInstance().closeQuietly();
         }
-
     }
 
     public void checker() {

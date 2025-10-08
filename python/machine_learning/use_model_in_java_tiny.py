@@ -192,7 +192,7 @@ def handle_client(conn):
 
                 if "reset_time" in json_data:
                     totalTime = 0.0
-                    logger.info("Total time reset to 0.0")
+                    logger.info("Python time reset to 0.0")
                     continue
                 
                 start_time = time.time()
