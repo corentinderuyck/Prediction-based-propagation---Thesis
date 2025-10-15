@@ -56,8 +56,19 @@ class GraphSAGELinkPredictor(nn.Module):
         return logits
 
 class ModelPredictor:
-    def __init__(self, model_path, threshold=0.5):
+    def __init__(self, model_path, threshold=0.5, device='auto'):
         self.threshold = threshold
+        
+        # Détection automatique du device
+        if device == 'auto':
+            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        else:
+            self.device = torch.device(device)
+        
+        logger.info(f"Using device: {self.device}")
+        if self.device.type == 'cuda':
+            logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
+            logger.info(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
         
         self.model = GraphSAGELinkPredictor(
             hidden_channels=16,
@@ -65,8 +76,9 @@ class ModelPredictor:
             dropout=0.3
         )
 
-        state_dict = torch.load(model_path, map_location='cpu')
+        state_dict = torch.load(model_path, map_location=self.device)
         self.model.load_state_dict(state_dict)
+        self.model.to(self.device)
         self.model.eval()
 
     def build_edge_list(self, graph_dict):
@@ -128,7 +140,8 @@ class ModelPredictor:
         if data is None:
             return {}
 
-        data = data
+        data = data.to(self.device)
+        
         with torch.inference_mode():
             logits = self.model(data)
             probs = torch.sigmoid(logits)
@@ -146,13 +159,14 @@ class ModelPredictor:
 MODEL_PATH = "../data/model.pth"
 THRESHOLD = 0.5
 SOCKET_PATH = "/tmp/unix_socket_predictor"
+DEVICE = 'auto'
 
 # Time
 totalTime = 0.0
 
 # Init ModelPredictor
 logger.info("Loading model...")
-predictor = ModelPredictor(MODEL_PATH, threshold=THRESHOLD)
+predictor = ModelPredictor(MODEL_PATH, threshold=THRESHOLD, device=DEVICE)
 
 # Unix Domain Socket server
 def handle_client(conn):
@@ -199,8 +213,15 @@ def handle_client(conn):
                     logger.info("Received ping")
                     continue
                 
+                if predictor.device.type == 'cuda':
+                    torch.cuda.synchronize()
+                
                 start_time = time.time()
                 result = predictor.predict(json_data)
+                
+                if predictor.device.type == 'cuda':
+                    torch.cuda.synchronize()
+                
                 end_time = time.time()
                 totalTime += end_time - start_time
 

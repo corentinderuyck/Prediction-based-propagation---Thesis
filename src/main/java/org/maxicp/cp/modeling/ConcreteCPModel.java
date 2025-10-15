@@ -111,7 +111,9 @@ public class ConcreteCPModel implements ConcreteModel {
                 if (!ignored.contains(c))
                     instantiateConstraint(c);
         });
-        solver.fixPoint();
+        // We remove the first fix point because if the propagator using the AI model empties a variable's domain, an InconsistencyException is thrown
+        // but it is not caught by the solver.
+        //solver.fixPoint();
         getStateManager().saveState();
 
         firstConstruction = false;

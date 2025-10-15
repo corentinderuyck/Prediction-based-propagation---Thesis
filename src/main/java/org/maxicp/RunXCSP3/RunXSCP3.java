@@ -25,6 +25,8 @@
 
     public class RunXSCP3 {
 
+        private static Process pythonServerProcess = null;
+
         private static class RunResult {
             SearchStatistics stats;
             long executionTimeMillis;
@@ -48,10 +50,22 @@
         // ---- Use the server with the AI model -----
 
         public static void startServer() throws InterruptedException, IOException {
-            Process pythonServer = new ProcessBuilder()
-                    .command("bash", "-c", "source ../python/env/bin/activate && python3 ../python/use_model_in_java_tiny.py")
+            pythonServerProcess = new ProcessBuilder()
+                    .command("bash", "-c", "source ../python/env/bin/activate && python3 ../python/use_model_in_java.py")
                     .inheritIO()
                     .start();
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                System.out.println("Shutting down Python server...");
+                if (pythonServerProcess != null && pythonServerProcess.isAlive()) {
+                    try {
+                        stopServer();
+                    } catch (Exception e) {
+                        System.err.println("Error during shutdown: " + e.getMessage());
+                    }
+                    pythonServerProcess.destroyForcibly();
+                }
+            }));
 
             Thread.sleep(20000);
 
@@ -66,13 +80,20 @@
         public static void stopServer() throws IOException, InterruptedException {
             try {
                 SocketManager.getInstance().sendNoResponse("{\"kill\": true}");
+                Thread.sleep(1000);
             } catch (IOException e) {
                 System.err.println("Warning: could not send kill to python server: " + e.getMessage());
             } finally {
                 SocketManager.getInstance().closeQuietly();
             }
 
-            Thread.sleep(2000);
+            if (pythonServerProcess != null && pythonServerProcess.isAlive()) {
+                pythonServerProcess.destroy();
+                if (!pythonServerProcess.waitFor(5, TimeUnit.SECONDS)) {
+                    System.err.println("Python process did not terminate, forcing...");
+                    pythonServerProcess.destroyForcibly();
+                }
+            }
         }
 
         public static void changeThreshold(float threshold) throws IOException, InterruptedException {
@@ -401,6 +422,18 @@
         }
 
         public static void main(String[] args) throws Exception {
-            runAllInstanceFolderAI("filtered_xml_instances_test");
+            try {
+                runAllInstanceFolderAI("filtered_xml_instances_test");
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (pythonServerProcess != null && pythonServerProcess.isAlive()) {
+                        stopServer();
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to stop server: " + e.getMessage());
+                }
+            }
         }
     }

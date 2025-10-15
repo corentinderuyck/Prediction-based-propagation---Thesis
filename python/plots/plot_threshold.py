@@ -128,10 +128,8 @@ def plot_nodes_by_instance(stats_file, instances_file='../data/instances_train.c
 
 
 if __name__ == '__main__':
-    #stats_file = '../data/stats_test.csv'
-    #instances_file = '../../instances_test.csv'
-    stats_file = '../data/stats_train.csv'
-    instances_file = '../../instances_train.csv'
+    stats_file = '../data/threshold_testdata_tiny_new.csv'
+    instances_file = '../../instances_test.csv'
     ncols = 4
     plot_solutions_by_instance(stats_file, instances_file, ncols)
     plot_failures_by_instance(stats_file, instances_file, ncols)

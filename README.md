@@ -40,7 +40,7 @@ This folder contains the following files/directories:
 
 The expected environment layout to run the Java solver together with the Python AI model is:
 
-* **python**: `use_model_...py`, `env` (Python environment with required packages)
+* **python**: `use_model_in_java.py`, `env` (Python environment with required packages)
 * **data**: `model.pth`
 * **java**: `maxicp.jar`, `filtered_xml_instances_test`, `filtered_xml_instances_train`
 
