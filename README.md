@@ -7,6 +7,7 @@
 * `python`: Python source files (see next section for details).
 * `src`: MaxiCP solver source code, modified to be compatible with the Python code.
 * `instances_test.csv` / `instances_train.csv`: CSV files with statistics (number of solutions, number of nodes, failures, and execution time) for each problem in the corresponding folder (test / train) when solved with the baseline MaxiCP solver (i.e., **without** predictions from the AI model).
+* `submit.sh`: A file to submit jobs to a SLURM cluster.
 
 ---
 
