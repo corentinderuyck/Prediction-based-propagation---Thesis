@@ -56,7 +56,7 @@ def plot_metric_by_instance(stats_file, metric, ylabel, instances_file='../data/
 
     for idx, inst in enumerate(plot_instances):
         ax = axes_flat[idx]
-        name = inst.replace('/root/java/filtered_xml_instances_train/', '').replace('/root/java/filtered_xml_instances_test/', '')
+        name = os.path.basename(inst)
 
         rows = df[df['Instance'] == inst]
         if 'Threshold' in rows.columns:
@@ -128,7 +128,7 @@ def plot_nodes_by_instance(stats_file, instances_file='../data/instances_train.c
 
 
 if __name__ == '__main__':
-    stats_file = '../data/threshold_testdata_tiny_new.csv'
+    stats_file = '../data/threshold_test_cpu.csv'
     instances_file = '../../instances_test.csv'
     ncols = 4
     plot_solutions_by_instance(stats_file, instances_file, ncols)

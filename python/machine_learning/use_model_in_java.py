@@ -55,11 +55,13 @@ class GraphSAGELinkPredictor(nn.Module):
         
         return logits
 
-class ModelPredictor:
-    def __init__(self, model_path, threshold=0.5, device='auto'):
+
+class OptimizedModelPredictor:
+    def __init__(self, model_path, threshold=0.5, device='auto', use_amp=True):
         self.threshold = threshold
+        self.use_amp = use_amp
         
-        # Détection automatique du device
+        # Automatic device detection
         if device == 'auto':
             self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         else:
@@ -69,19 +71,32 @@ class ModelPredictor:
         if self.device.type == 'cuda':
             logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
             logger.info(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
+            
+            # GPU optimizations
+            torch.backends.cudnn.benchmark = True  # Auto-tune for fixed input sizes
+            torch.backends.cuda.matmul.allow_tf32 = True  # TensorFloat-32 for matmul
+            torch.backends.cudnn.allow_tf32 = True  # TensorFloat-32 for convolutions
+            
+            # High performance mixed precision
+            if hasattr(torch, 'set_float32_matmul_precision'):
+                torch.set_float32_matmul_precision('high')
+            
+            logger.info(f"GPU optimizations enabled (cuDNN benchmark, TF32, AMP={use_amp})")
         
+        # Load model
         self.model = GraphSAGELinkPredictor(
             hidden_channels=16,
             num_layers=2,
             dropout=0.3
         )
 
-        state_dict = torch.load(model_path, map_location=self.device)
+        state_dict = torch.load(model_path, map_location=self.device, weights_only=True)
         self.model.load_state_dict(state_dict)
         self.model.to(self.device)
         self.model.eval()
 
     def build_edge_list(self, graph_dict):
+        """Build edge list from graph dictionary"""
         edges = []
         for left_node, right_nodes in graph_dict.items():
             u = int(left_node)
@@ -90,6 +105,7 @@ class ModelPredictor:
         return edges
 
     def create_pyg_data(self, graph_dict):
+        """Create PyG Data object from graph dictionary"""
         edges = sorted(set(self.build_edge_list(graph_dict)))
 
         all_left_nodes = set(int(k) for k in graph_dict.keys())
@@ -136,17 +152,31 @@ class ModelPredictor:
         return data, original_edges
 
     def predict(self, graph_json):
+        """Optimized prediction for a single graph"""
         data, original_edges = self.create_pyg_data(graph_json)
         if data is None:
             return {}
 
-        data = data.to(self.device)
+        # Asynchronous transfer to GPU (non_blocking=True)
+        data = data.to(self.device, non_blocking=True)
         
+        # Inference with or without mixed precision
         with torch.inference_mode():
-            logits = self.model(data)
+            if self.use_amp and self.device.type == 'cuda':
+                # Automatic mixed precision (FP16/FP32 mix)
+                with torch.amp.autocast('cuda', dtype=torch.float16):
+                    logits = self.model(data)
+            else:
+                logits = self.model(data)
+            
+            # Post-processing on GPU then minimal transfer to CPU
             probs = torch.sigmoid(logits)
-            predictions = (probs > self.threshold).cpu().numpy()
+            predictions = (probs > self.threshold)
+            
+            # Transfer only boolean result (small)
+            predictions = predictions.cpu().numpy()
 
+        # Reconstruct result dictionary
         edges_to_remove = {}
         for i, (u, v) in enumerate(original_edges):
             if predictions[i]:
@@ -161,16 +191,24 @@ THRESHOLD = 0.5
 SOCKET_PATH = "/tmp/unix_socket_predictor"
 DEVICE = 'auto'
 
-# Time
+# GPU optimizations
+USE_AMP = True  # Mixed precision (FP16) on GPU
+
+# Time tracking
 totalTime = 0.0
 
-# Init ModelPredictor
+# Initialize OptimizedModelPredictor
 logger.info("Loading model...")
-predictor = ModelPredictor(MODEL_PATH, threshold=THRESHOLD, device=DEVICE)
+predictor = OptimizedModelPredictor(
+    MODEL_PATH, 
+    threshold=THRESHOLD, 
+    device=DEVICE,
+    use_amp=USE_AMP
+)
+logger.info("Model ready for inference")
 
 # Unix Domain Socket server
 def handle_client(conn):
-    global stop_server
     global totalTime
     buffer = b""
     try:
@@ -189,6 +227,7 @@ def handle_client(conn):
                     conn.sendall(response)
                     continue
 
+                # Special commands
                 if "kill" in json_data:
                     logger.info("Received kill signal, shutting down server.")
                     os._exit(0)
@@ -213,12 +252,14 @@ def handle_client(conn):
                     logger.info("Received ping")
                     continue
                 
+                # GPU synchronization for precise time measurement
                 if predictor.device.type == 'cuda':
                     torch.cuda.synchronize()
                 
                 start_time = time.time()
                 result = predictor.predict(json_data)
                 
+                # Synchronization for precise measurement
                 if predictor.device.type == 'cuda':
                     torch.cuda.synchronize()
                 
@@ -227,8 +268,9 @@ def handle_client(conn):
 
                 response = json.dumps(result).encode("utf-8") + b"\n"
                 conn.sendall(response)
+                
     except Exception as e:
-        logger.error(f"Exception in client handler: {e}")
+        logger.error(f"Exception in client handler: {e}", exc_info=True)
     finally:
         conn.close()
         logger.info("Client disconnected")
@@ -247,6 +289,8 @@ def server():
                 conn, _ = server_sock.accept()
                 logger.info("Client connected")
                 threading.Thread(target=handle_client, args=(conn,), daemon=True).start()
+        except KeyboardInterrupt:
+            logger.info("\nServer shutting down gracefully...")
         finally:
             if os.path.exists(SOCKET_PATH):
                 os.remove(SOCKET_PATH)

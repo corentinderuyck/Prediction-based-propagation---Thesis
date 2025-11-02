@@ -131,16 +131,16 @@ def plot_metrics(csv_path: str, save_dir: str = None, show: bool = True,
     }
 
 if __name__ == "__main__":
-    # Train tiny
-    csv_path = "../data/test_trainData_tiny.csv"
+    # Train
+    csv_path = "../data/test_trainData.csv"
     outdir = "./plots"
-    name_boxplot = "metrics_boxplot_train_tiny.pdf"
-    name_histograms = "metrics_histograms_train_tiny.pdf"
+    name_boxplot = "metrics_boxplot_train.pdf"
+    name_histograms = "metrics_histograms_train.pdf"
     plot_metrics(csv_path, save_dir=outdir, show=False, name_boxplot=name_boxplot, name_histograms=name_histograms)
 
-    # Test tiny
-    csv_path = "../data/test_testData_tiny.csv"
+    # Test
+    csv_path = "../data/test_testData.csv"
     outdir = "./plots"
-    name_boxplot = "metrics_boxplot_test_tiny.pdf"
-    name_histograms = "metrics_histograms_test_tiny.pdf"
+    name_boxplot = "metrics_boxplot_test.pdf"
+    name_histograms = "metrics_histograms_test.pdf"
     plot_metrics(csv_path, save_dir=outdir, show=False, name_boxplot=name_boxplot, name_histograms=name_histograms)
