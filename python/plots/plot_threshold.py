@@ -24,7 +24,7 @@ def find_true_values_for_instance(inst, inst_df):
 
     return row.get('Solutions'), row.get('Nodes'), row.get('Failures')
 
-def plot_metric_by_instance(stats_file, metric, ylabel, instances_file='../data/instances_train.csv', ncols=3):
+def plot_metric_by_instance(stats_file, metric, ylabel, instances_file, ncols, output_name):
     df = pd.read_csv(stats_file)
     inst_df = load_instances(instances_file)
 
@@ -109,28 +109,59 @@ def plot_metric_by_instance(stats_file, metric, ylabel, instances_file='../data/
         axes_flat[i].axis('off')
 
     plt.tight_layout()
-    plt.savefig(f'plot_{metric.lower()}_train.pdf')
-    plt.show()
+    plt.savefig(output_name)
 
 
 
 
-def plot_solutions_by_instance(stats_file, instances_file='../data/instances_train.csv', ncols=3):
-    plot_metric_by_instance(stats_file, 'Solutions', 'Number of Solutions', instances_file, ncols)
+def plot_solutions_by_instance(stats_file, instances_file, ncols, output_name):
+    plot_metric_by_instance(stats_file, 'Solutions', 'Number of Solutions', instances_file, ncols, output_name + '_solutions.pdf')
 
 
-def plot_failures_by_instance(stats_file, instances_file='../data/instances_train.csv', ncols=3):
-    plot_metric_by_instance(stats_file, 'Failures', 'Number of Failures', instances_file, ncols)
+def plot_failures_by_instance(stats_file, instances_file, ncols, output_name):
+    plot_metric_by_instance(stats_file, 'Failures', 'Number of Failures', instances_file, ncols, output_name + '_failures.pdf')
 
 
-def plot_nodes_by_instance(stats_file, instances_file='../data/instances_train.csv', ncols=3):
-    plot_metric_by_instance(stats_file, 'Nodes', 'Number of Nodes', instances_file, ncols)
+def plot_nodes_by_instance(stats_file, instances_file, ncols, output_name=None):
+    plot_metric_by_instance(stats_file, 'Nodes', 'Number of Nodes', instances_file, ncols, output_name + '_nodes.pdf')
 
 
 if __name__ == '__main__':
-    stats_file = '../data/threshold_test_cpu.csv'
-    instances_file = '../../instances_test.csv'
     ncols = 4
-    plot_solutions_by_instance(stats_file, instances_file, ncols)
-    plot_failures_by_instance(stats_file, instances_file, ncols)
-    plot_nodes_by_instance(stats_file, instances_file, ncols)
+
+    # train base model
+    """
+    stats_file = '../data/threshold_train.csv'
+    instances_file = '../../instances_train.csv'
+    output_name = './plots/threshold_base_model_train
+    plot_solutions_by_instance(stats_file, instances_file, ncols, output_name)
+    plot_failures_by_instance(stats_file, instances_file, ncols, output_name)
+    plot_nodes_by_instance(stats_file, instances_file, ncols, output_name)
+    """
+
+
+    # test base model
+    stats_file = '../data/threshold_test.csv'
+    instances_file = '../../instances_test.csv'
+    output_name = './plots/threshold_base_model_test'
+    plot_solutions_by_instance(stats_file, instances_file, ncols, output_name)
+    plot_failures_by_instance(stats_file, instances_file, ncols, output_name)
+    plot_nodes_by_instance(stats_file, instances_file, ncols, output_name)
+
+    # train small model
+    """
+    stats_file = '../data/threshold_train_small.csv'
+    instances_file = '../../instances_train.csv'
+    output_name = './plots/threshold_small_model_train'
+    plot_solutions_by_instance(stats_file, instances_file, ncols, output_name)
+    plot_failures_by_instance(stats_file, instances_file, ncols, output_name)
+    plot_nodes_by_instance(stats_file, instances_file, ncols, output_name)
+
+    # test small model
+    stats_file = '../data/threshold_test_small.csv'
+    instances_file = '../../instances_test.csv'
+    output_name = './plots/threshold_small_model_test'
+    plot_solutions_by_instance(stats_file, instances_file, ncols, output_name)
+    plot_failures_by_instance(stats_file, instances_file, ncols, output_name)
+    plot_nodes_by_instance(stats_file, instances_file, ncols, output_name)
+    """

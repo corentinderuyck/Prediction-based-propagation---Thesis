@@ -423,7 +423,7 @@
 
         public static void main(String[] args) throws Exception {
             try {
-                runAllInstanceFolderAI("filtered_xml_instances_test");
+                runAllInstanceFolderAI("filtered_xml_instances_train");
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {

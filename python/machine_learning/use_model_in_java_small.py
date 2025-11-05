@@ -85,7 +85,7 @@ class OptimizedModelPredictor:
         
         # Load model
         self.model = GraphSAGELinkPredictor(
-            hidden_channels=16,
+            hidden_channels=4,
             num_layers=2,
             dropout=0.3
         )

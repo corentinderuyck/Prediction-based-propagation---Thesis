@@ -144,3 +144,19 @@ if __name__ == "__main__":
     name_boxplot = "metrics_boxplot_test.pdf"
     name_histograms = "metrics_histograms_test.pdf"
     plot_metrics(csv_path, save_dir=outdir, show=False, name_boxplot=name_boxplot, name_histograms=name_histograms)
+
+    # Train small
+    """
+    csv_path = "../data/test_trainData_small.csv"
+    outdir = "./plots"
+    name_boxplot = "metrics_boxplot_train_small.pdf"
+    name_histograms = "metrics_histograms_train_small.pdf"
+    plot_metrics(csv_path, save_dir=outdir, show=False, name_boxplot=name_boxplot, name_histograms=name_histograms)
+    """
+    
+    # Test small
+    csv_path = "../data/test_testData_small.csv"
+    outdir = "./plots"
+    name_boxplot = "metrics_boxplot_test_small.pdf"
+    name_histograms = "metrics_histograms_test_small.pdf"
+    plot_metrics(csv_path, save_dir=outdir, show=False, name_boxplot=name_boxplot, name_histograms=name_histograms)
