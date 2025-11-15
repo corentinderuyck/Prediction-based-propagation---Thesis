@@ -100,6 +100,7 @@ def plot_metrics(csv_path: str, save_dir: str = None, show: bool = True,
     box_df = metrics_df.dropna(how="any")
     ax2.boxplot([box_df[c] for c in metric_cols], labels=[col_rename[c] for c in metric_cols], vert=True)
     ax2.set_ylabel("Value")
+    ax2.set_ylim(0, 1.1)
     plt.xticks(rotation=25)
     ax2.yaxis.grid(True)
     plt.tight_layout()
@@ -146,17 +147,22 @@ if __name__ == "__main__":
     plot_metrics(csv_path, save_dir=outdir, show=False, name_boxplot=name_boxplot, name_histograms=name_histograms)
 
     # Train small
-    """
     csv_path = "../data/test_trainData_small.csv"
     outdir = "./plots"
     name_boxplot = "metrics_boxplot_train_small.pdf"
     name_histograms = "metrics_histograms_train_small.pdf"
     plot_metrics(csv_path, save_dir=outdir, show=False, name_boxplot=name_boxplot, name_histograms=name_histograms)
-    """
     
     # Test small
     csv_path = "../data/test_testData_small.csv"
     outdir = "./plots"
     name_boxplot = "metrics_boxplot_test_small.pdf"
     name_histograms = "metrics_histograms_test_small.pdf"
+    plot_metrics(csv_path, save_dir=outdir, show=False, name_boxplot=name_boxplot, name_histograms=name_histograms)
+
+    # Test Random data
+    csv_path = "../data/test_trainTestData_random.csv"
+    outdir = "./plots"
+    name_boxplot = "metrics_boxplot_train_test_random.pdf"
+    name_histograms = "metrics_histograms_train_test_random.pdf"
     plot_metrics(csv_path, save_dir=outdir, show=False, name_boxplot=name_boxplot, name_histograms=name_histograms)

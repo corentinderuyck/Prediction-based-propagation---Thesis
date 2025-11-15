@@ -5,19 +5,19 @@
     import org.maxicp.modeling.algebra.bool.Eq;
     import org.maxicp.modeling.algebra.bool.NotEq;
     import org.maxicp.modeling.algebra.integer.IntExpression;
+    import org.maxicp.modeling.symbolic.Objective;
     import org.maxicp.modeling.xcsp3.XCSP3;
     import org.maxicp.search.DFSearch;
     import org.maxicp.search.SearchStatistics;
     import org.maxicp.util.exception.InconsistencyException;
-    import org.newsclub.net.unix.AFUNIXSocket;
-    import org.newsclub.net.unix.AFUNIXSocketAddress;
+    import org.maxicp.util.exception.NotImplementedException;
+    import org.maxicp.util.exception.NotYetImplementedException;
 
     import javax.json.JsonObject;
-    import javax.json.stream.JsonParser;
     import java.io.*;
-    import java.nio.charset.StandardCharsets;
     import java.util.*;
     import java.util.concurrent.*;
+    import java.util.concurrent.atomic.AtomicInteger;
     import java.util.function.Supplier;
 
     import static org.maxicp.modeling.xcsp3.XCSP3.load;
@@ -40,6 +40,56 @@
                 this.javaTimeMillis = javaTimeMillis;
                 this.pythonTimeMillis = pythonTimeMillis;
                 this.nbCallPropagate = nbCallPropagate;
+            }
+
+            @Override
+            public String toString() {
+                String output = String.format("Nodes: %d\nFailures: %d\nSolutions: %d\nCompleted: %b\nTotal Execution Time (ms): %d\nJava Execution Time (ms): %d\nPython AI Execution Time (ms): %d\nNumber of Calls to Propagate: %d",
+                         stats.numberOfNodes(),
+                         stats.numberOfFailures(),
+                         stats.numberOfSolutions(),
+                         stats.isCompleted(),
+                         executionTimeMillis,
+                         javaTimeMillis,
+                         pythonTimeMillis,
+                         nbCallPropagate);
+                return output;
+            }
+        }
+
+        private static class RunResultOptimization {
+            SearchStatistics stats;
+            int bestValue;
+            long executionTimeMillis;
+            long javaTimeMillis;
+            long pythonTimeMillis;
+            int nbCallPropagate;
+            boolean isMinimization;
+
+            RunResultOptimization(SearchStatistics stats, long executionTimeMillis, long javaTimeMillis, long pythonTimeMillis, int nbCallPropagate, int bestValue, boolean isMinimization) {
+                this.stats = stats;
+                this.executionTimeMillis = executionTimeMillis;
+                this.javaTimeMillis = javaTimeMillis;
+                this.pythonTimeMillis = pythonTimeMillis;
+                this.nbCallPropagate = nbCallPropagate;
+                this.bestValue = bestValue;
+                this.isMinimization = isMinimization;
+            }
+
+            @Override
+            public String toString() {
+                String output = String.format("Nodes: %d\nFailures: %d\nSolutions: %d\nCompleted: %b\nTotal Execution Time (ms): %d\nJava Execution Time (ms): %d\nPython AI Execution Time (ms): %d\nNumber of Calls to Propagate: %d\nBest Objective Value: %d\nisMinimization: %b",
+                        stats.numberOfNodes(),
+                        stats.numberOfFailures(),
+                        stats.numberOfSolutions(),
+                        stats.isCompleted(),
+                        executionTimeMillis,
+                        javaTimeMillis,
+                        pythonTimeMillis,
+                        nbCallPropagate,
+                        bestValue,
+                        isMinimization);
+                return output;
             }
         }
 
@@ -250,6 +300,7 @@
             }
 
             for (File file : files) {
+
                 try {
                     runOneInstanceDifferentThresholdAI(file.getAbsolutePath());
                 } catch (Exception e) {
@@ -358,7 +409,7 @@
                         System.out.println("Running instance: " + file.getName());
                         RunResult result = runOneInstance(file.getAbsolutePath(), oneFile);
                         System.out.println("Finished instance: " + file.getName());
-                        saveStatistics("run_without_ai_train.csv", file.getName(), result, 0.0f);
+                        saveStatistics("run_without_ai.csv", file.getName(), result, 0.0f);
                     } catch (Exception e) {
                         // Do nothing
                     }
@@ -421,6 +472,271 @@
             }
         }
 
+        /**
+         * Saves the search statistics to a CSV file.
+         * The file is created if it does not exist, and the header is written only once.
+         * @param csvFile the path to the CSV file
+         * @param instanceName the name of the instance
+         * @param runResult the result of the run
+         * @param threshold (optional) threshold used for the AI model
+         */
+        private static void saveStatisticsOptimization(String csvFile, String instanceName, RunResultOptimization runResult, float threshold) {
+            boolean fileExists = new File(csvFile).exists();
+
+            try (FileWriter fw = new FileWriter(csvFile, true);
+                 BufferedWriter bw = new BufferedWriter(fw);
+                 PrintWriter out = new PrintWriter(bw)) {
+
+                if (!fileExists) {
+                    out.println("Instance,Nodes,Failures,Solutions,Completed,TotalExecutionTimeMillis,JavaExecutionTimeMillis,PythonAIExecutionTimeMillis,NumberOfCallsToPropagate,Threshold,BestObjectiveValue,isMinimization");
+                }
+
+                String baseName = instanceName.endsWith(".xml") ?
+                        instanceName.substring(0, instanceName.length() - 4) : instanceName;
+
+                out.printf(Locale.US, "%s,%d,%d,%d,%b,%d,%d,%d,%d,%.2f,%d,%b%n",
+                        baseName,
+                        runResult.stats.numberOfNodes(),
+                        runResult.stats.numberOfFailures(),
+                        runResult.stats.numberOfSolutions(),
+                        runResult.stats.isCompleted(),
+                        runResult.executionTimeMillis,
+                        runResult.javaTimeMillis,
+                        runResult.pythonTimeMillis,
+                        runResult.nbCallPropagate,
+                        threshold,
+                        runResult.bestValue,
+                        runResult.isMinimization);
+
+
+                System.out.println("Statistics saved to: " + csvFile);
+
+            } catch (IOException e) {
+                System.err.println("Failed to save statistics for " + instanceName);
+                e.printStackTrace();
+            }
+        }
+
+
+
+        // -------------- Code to run optimization instances ----------------
+
+        private static void runOptimizationInstancesFolder(String folder) {
+            File dir = new File(folder);
+            if (!dir.exists() || !dir.isDirectory()) {
+                throw new IllegalArgumentException("Invalid folder: " + folder);
+            }
+
+            File[] files = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".xml"));
+            if (files == null || files.length == 0) {
+                System.out.println("No XML instances found in folder: " + folder);
+                return;
+            }
+
+            for (File file : files) {
+                try {
+                    System.out.println("\nRunning optimization instance: " + file.getName());
+                    RunResultOptimization results = runOptimizationInstance(file.getAbsolutePath());
+                    System.out.println(results);
+                    saveStatisticsOptimization("instances_optimization.csv", file.getName(), results, 0.0f);
+                } catch (NotYetImplementedException e) {
+                    System.err.println("Instance not yet implemented: " + file.getName());
+                    // Delete the instance
+                    File instanceFile = new File(file.getAbsolutePath());
+                    boolean deleted = instanceFile.delete();
+                    if (deleted) {
+                        System.out.println("Deleted instance file: " + instanceFile.getAbsolutePath());
+                    } else {
+                        System.err.println("Failed to delete instance file: " + instanceFile.getAbsolutePath());
+                    }
+                } catch (NotImplementedException e) {
+                    System.err.println("Instance not yet implemented: " + file.getName());
+                    // Delete the instance
+                    File instanceFile = new File(file.getAbsolutePath());
+                    boolean deleted = instanceFile.delete();
+                    if (deleted) {
+                        System.out.println("Deleted instance file: " + instanceFile.getAbsolutePath());
+                    } else {
+                        System.err.println("Failed to delete instance file: " + instanceFile.getAbsolutePath());
+                    }
+                } catch(Exception e) {
+                    System.err.println("Error running instance: " + file.getName());
+                    e.printStackTrace();
+                } catch (OutOfMemoryError e) {
+                    System.err.println("Out of memory error for instance: " + file.getName());
+                    // Delete the instance
+                    File instanceFile = new File(file.getAbsolutePath());
+                    boolean deleted = instanceFile.delete();
+                    if (deleted) {
+                        System.out.println("Deleted instance file: " + instanceFile.getAbsolutePath());
+                    } else {
+                        System.err.println("Failed to delete instance file: " + instanceFile.getAbsolutePath());
+                    }
+                }
+            }
+        }
+
+        private static RunResultOptimization runOptimizationInstance(String instanceFile) throws Exception {
+
+            AtLeastNValueDC.nbCallPropagate = 0;     // Count the number of calls to the propagate method
+
+            Stopwatch allExecutionTimer = new Stopwatch();
+            allExecutionTimer.reset();
+            allExecutionTimer.start();
+
+            XCSP3.XCSP3LoadedInstance instance = load(instanceFile);
+            IntExpression[] q = instance.decisionVars();
+
+            Objective obj = instance.objective();
+            if (obj == null) {
+                throw new IllegalStateException("Instance does not define an objective");
+            }
+            boolean isMinimization = instance.isMinimization();
+
+            AtomicInteger bestValue = new AtomicInteger(isMinimization ? Integer.MAX_VALUE : Integer.MIN_VALUE);
+
+            // first fail branching (minimal domain size)
+            Supplier<Runnable[]> branching = () -> {
+
+                IntExpression qs = selectMin(q,
+                        qi -> qi.size() > 1,
+                        qi -> qi.size());
+
+                if (qs == null) return EMPTY;
+                int v = qs.min();
+
+                Runnable left = () -> instance.md().add(new Eq(qs, v));
+                Runnable right = () -> instance.md().add(new NotEq(qs, v));
+                return branch(left, right);
+
+            };
+
+            final SearchStatistics[] result = new SearchStatistics[1];
+
+            instance.md().runCP(cp -> {
+                DFSearch search = cp.dfSearch(branching);
+                search.onSolution(() -> {
+                    String s = obj.toString();
+                    // Extract the integer value from the objective string
+                    int value = Integer.parseInt(s.replaceAll("\\D+", ""));
+                    bestValue.set(value);
+                });
+                SearchStatistics stats = search.optimize(obj);
+                result[0] = stats;
+            });
+
+            allExecutionTimer.pause();
+            long totalExecutionTime = allExecutionTimer.getElapsedTimeMillis();
+
+            int nbCallPropagate = AtLeastNValueDC.nbCallPropagate;
+
+            return new RunResultOptimization(result[0], totalExecutionTime, totalExecutionTime, 0L, nbCallPropagate, bestValue.get(), isMinimization);
+        }
+
+        private static RunResultOptimization runOptimizationInstanceAI(String instanceFile) throws Exception {
+
+            AllDifferentAI.nbCallPropagate = 0;     // Count the number of calls to the propagate method
+
+            Stopwatch allExecutionTimer = new Stopwatch();
+            allExecutionTimer.reset();
+            allExecutionTimer.start();
+
+            XCSP3.XCSP3LoadedInstance instance = load(instanceFile);
+            IntExpression[] q = instance.decisionVars();
+
+            Objective obj = instance.objective();
+            if (obj == null) {
+                throw new IllegalStateException("Instance does not define an objective");
+            }
+            boolean isMinimization = instance.isMinimization();
+
+            AtomicInteger bestValue = new AtomicInteger(isMinimization ? Integer.MAX_VALUE : Integer.MIN_VALUE);
+
+            // first fail branching (minimal domain size)
+            Supplier<Runnable[]> branching = () -> {
+
+                IntExpression qs = selectMin(q,
+                        qi -> qi.size() > 1,
+                        qi -> qi.size());
+
+                if (qs == null) return EMPTY;
+                int v = qs.min();
+
+                Runnable left = () -> instance.md().add(new Eq(qs, v));
+                Runnable right = () -> instance.md().add(new NotEq(qs, v));
+                return branch(left, right);
+
+            };
+
+            final SearchStatistics[] result = new SearchStatistics[1];
+
+            instance.md().runCP(cp -> {
+                DFSearch search = cp.dfSearch(branching);
+                search.onSolution(() -> {
+                    String s = obj.toString();
+                    // Extract the integer value from the objective string
+                    int value = Integer.parseInt(s.replaceAll("\\D+", ""));
+                    bestValue.set(value);
+                });
+                SearchStatistics stats = search.optimize(obj);
+                result[0] = stats;
+            });
+
+            allExecutionTimer.pause();
+            long totalExecutionTime = allExecutionTimer.getElapsedTimeMillis();
+
+            int nbCallPropagate = AllDifferentAI.nbCallPropagate;
+
+            return new RunResultOptimization(result[0], totalExecutionTime, totalExecutionTime, 0L, nbCallPropagate, bestValue.get(), isMinimization);
+        }
+
+        private static void runOptimizationInstancesFolderAI(String folder) throws IOException, InterruptedException {
+            // start the Python server
+            startServer();
+
+            File dir = new File(folder);
+            if (!dir.exists() || !dir.isDirectory()) {
+                throw new IllegalArgumentException("Invalid folder: " + folder);
+            }
+
+            File[] files = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".xml"));
+            if (files == null || files.length == 0) {
+                System.out.println("No XML instances found in folder: " + folder);
+                return;
+            }
+
+            for (File file : files) {
+                try {
+                    System.out.println("Running optimization instance: " + file.getName());
+                    runOneInstanceOptimizationDifferentThresholdAI(file.getAbsolutePath());
+                } catch (Exception e) {
+                    System.err.println("Error running instance: " + file.getName());
+                    e.printStackTrace();
+                }
+            }
+
+            // stop the Python server
+            stopServer();
+        }
+
+        private static void runOneInstanceOptimizationDifferentThresholdAI(String instanceFile) throws Exception {
+
+            String fileName = "../data/stats_opti.csv";
+            float[] thresholds = {0.01f,0.05f,0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+            for (float threshold : thresholds) {
+                // change threshold in the Python server
+                changeThreshold(threshold);
+
+                System.out.println("Running instance: " + instanceFile + " with threshold: " + threshold);
+                RunResultOptimization runResult = runOptimizationInstanceAI(instanceFile);
+                System.out.println("Finished instance: " + instanceFile + " with threshold: " + threshold);
+                saveStatisticsOptimization(fileName, instanceFile, runResult, threshold);
+            }
+
+        }
+
+
+
         public static void main(String[] args) throws Exception {
             try {
                 runAllInstanceFolderAI("filtered_xml_instances_train");
@@ -435,5 +751,27 @@
                     System.err.println("Failed to stop server: " + e.getMessage());
                 }
             }
+
+            /*
+            // run optimization instances
+            try {
+                runOptimizationInstancesFolderAI("COP_instances");
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (pythonServerProcess != null && pythonServerProcess.isAlive()) {
+                        stopServer();
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to stop server: " + e.getMessage());
+                }
+            }
+
+            */
+
+            //runAllInstances("COP_instances", false);
+            //runOptimizationInstancesFolder("COP_instances");
+
         }
     }

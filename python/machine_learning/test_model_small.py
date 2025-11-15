@@ -350,7 +350,7 @@ def main():
     # save summary CSV if we have results
     if summary_rows:
         summary_df = pd.DataFrame(summary_rows)
-        summary_path = os.path.join(INPUT_FOLDER, "evaluation_summary.csv")
+        summary_path = os.path.join(INPUT_FOLDER, "evaluation_summary_small.csv")
         summary_df.to_csv(summary_path, index=False)
         print()
         print(f"Saved evaluation summary to: {summary_path}")

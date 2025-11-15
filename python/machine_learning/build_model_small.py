@@ -335,6 +335,6 @@ if __name__ == "__main__":
         
 
     # Save the model
-    torch.save(model.state_dict(), "model.pth")
+    torch.save(model.state_dict(), "model_small.pth")
 
     print("Training completed.")

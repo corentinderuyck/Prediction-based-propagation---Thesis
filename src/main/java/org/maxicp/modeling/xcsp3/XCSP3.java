@@ -6,6 +6,7 @@ import org.maxicp.modeling.algebra.VariableNotFixedException;
 import org.maxicp.modeling.algebra.bool.*;
 import org.maxicp.modeling.algebra.integer.*;
 import org.maxicp.modeling.constraints.*;
+import org.maxicp.modeling.symbolic.Objective;
 import org.maxicp.search.DFSearch;
 import org.maxicp.util.ImmutableSet;
 import org.maxicp.util.exception.NotImplementedException;
@@ -31,7 +32,7 @@ import static org.maxicp.search.Searches.EMPTY;
 import static org.maxicp.search.Searches.branch;
 
 public class XCSP3 extends XCallbacksDecomp {
-    public record XCSP3LoadedInstance(ModelDispatcher md, IntExpression[] decisionVars, Supplier<String> solutionGenerator) implements AutoCloseable {
+    public record XCSP3LoadedInstance(ModelDispatcher md, IntExpression[] decisionVars, Supplier<String> solutionGenerator, Objective objective, boolean isMinimization) implements AutoCloseable {
         @Override
         public void close() throws Exception {
             md.close();
@@ -64,7 +65,7 @@ public class XCSP3 extends XCallbacksDecomp {
             return b.toString();
         };
 
-        return new XCSP3LoadedInstance(xcsp3.md, xcsp3.decisionVars.stream().map(xcsp3.varHashMap::get).toArray(IntExpression[]::new), solutionGenerator);
+        return new XCSP3LoadedInstance(xcsp3.md, xcsp3.decisionVars.stream().map(xcsp3.varHashMap::get).toArray(IntExpression[]::new), solutionGenerator, xcsp3.objective, xcsp3.isMinimization);
     }
 
     public static void main(String[] args) throws Exception {
@@ -99,6 +100,8 @@ public class XCSP3 extends XCallbacksDecomp {
     private final LinkedHashMap<String, IntExpression> varHashMap;
     private final LinkedHashSet<String> decisionVars;
     private final ModelDispatcher md;
+    private Objective objective;
+    private boolean isMinimization;
 
     private final XCallbacks.Implem impl;
 
@@ -551,66 +554,78 @@ public class XCSP3 extends XCallbacksDecomp {
 
     @Override
     public void buildObjToMinimize(String id, XVariables.XVarInteger x) {
-        md.minimize($(x));
+        this.objective = md.minimize($(x));
+        this.isMinimization = true;
     }
 
     @Override
     public void buildObjToMaximize(String id, XVariables.XVarInteger x) {
-        md.maximize($(x));
+        this.objective = md.maximize($(x));
+        this.isMinimization = false;
     }
 
     @Override
     public void buildObjToMinimize(String id, XNodeParent<XVariables.XVarInteger> tree) {
-        md.minimize(_recursiveIntentionBuilder(tree));
+        this.objective = md.minimize(_recursiveIntentionBuilder(tree));
+        this.isMinimization = true;
     }
 
     @Override
     public void buildObjToMaximize(String id, XNodeParent<XVariables.XVarInteger> tree) {
-        md.maximize(_recursiveIntentionBuilder(tree));
+        this.objective = md.maximize(_recursiveIntentionBuilder(tree));
+        this.isMinimization = false;
     }
 
     @Override
     public void buildObjToMinimize(String id, Types.TypeObjective type, XVariables.XVarInteger[] list) {
-        md.minimize(getExprForTypeObjective(type, $(list)));
+        this.objective = md.minimize(getExprForTypeObjective(type, $(list)));
+        this.isMinimization = true;
     }
 
     @Override
     public void buildObjToMaximize(String id, Types.TypeObjective type, XVariables.XVarInteger[] list) {
-        md.maximize(getExprForTypeObjective(type, $(list)));
+        this.objective = md.maximize(getExprForTypeObjective(type, $(list)));
+        this.isMinimization = false;
     }
 
     @Override
     public void buildObjToMinimize(String id, Types.TypeObjective type, XVariables.XVarInteger[] list, int[] coeffs) {
-        md.minimize(getExprForTypeObjective(type, $(list), coeffs));
+        this.objective = md.minimize(getExprForTypeObjective(type, $(list), coeffs));
+        this.isMinimization = true;
     }
 
     @Override
     public void buildObjToMaximize(String id, Types.TypeObjective type, XVariables.XVarInteger[] list, int[] coeffs) {
-        md.maximize(getExprForTypeObjective(type, $(list), coeffs));
+        this.objective = md.maximize(getExprForTypeObjective(type, $(list), coeffs));
+        this.isMinimization = false;
     }
 
     @Override
     public void buildObjToMinimize(String id, Types.TypeObjective type, XNode<XVariables.XVarInteger>[] trees) {
         IntExpression[] list = Arrays.stream(trees).map(this::_recursiveIntentionBuilder).toArray(IntExpression[]::new);
-        md.minimize(getExprForTypeObjective(type, list));
+        this.objective = md.minimize(getExprForTypeObjective(type, list));
+        this.isMinimization = true;
     }
 
     @Override
     public void buildObjToMaximize(String id, Types.TypeObjective type, XNode<XVariables.XVarInteger>[] trees) {
         IntExpression[] list = Arrays.stream(trees).map(this::_recursiveIntentionBuilder).toArray(IntExpression[]::new);
-        md.maximize(getExprForTypeObjective(type, list));
+        this.objective = md.maximize(getExprForTypeObjective(type, list));
+        this.isMinimization = false;
     }
 
     @Override
     public void buildObjToMinimize(String id, Types.TypeObjective type, XNode<XVariables.XVarInteger>[] trees, int[] coeffs) {
         IntExpression[] list = Arrays.stream(trees).map(this::_recursiveIntentionBuilder).toArray(IntExpression[]::new);
-        md.minimize(getExprForTypeObjective(type, list, coeffs));
+        this.objective = md.minimize(getExprForTypeObjective(type, list, coeffs));
+        this.isMinimization = true;
     }
 
     @Override
     public void buildObjToMaximize(String id, Types.TypeObjective type, XNode<XVariables.XVarInteger>[] trees, int[] coeffs) {
         IntExpression[] list = Arrays.stream(trees).map(this::_recursiveIntentionBuilder).toArray(IntExpression[]::new);
-        md.maximize(getExprForTypeObjective(type, list, coeffs));
+        this.objective = md.maximize(getExprForTypeObjective(type, list, coeffs));
+        this.isMinimization = false;
     }
 
 

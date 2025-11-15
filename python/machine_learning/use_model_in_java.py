@@ -158,7 +158,8 @@ class OptimizedModelPredictor:
             return {}
 
         # Asynchronous transfer to GPU (non_blocking=True)
-        data = data.to(self.device, non_blocking=True)
+        if self.device.type == 'cuda':
+            data = data.to(self.device, non_blocking=True)
         
         # Inference with or without mixed precision
         with torch.inference_mode():
@@ -189,7 +190,7 @@ class OptimizedModelPredictor:
 MODEL_PATH = "../data/model.pth"
 THRESHOLD = 0.5
 SOCKET_PATH = "/tmp/unix_socket_predictor"
-DEVICE = 'cpu'
+DEVICE = 'auto'
 
 # GPU optimizations
 USE_AMP = True

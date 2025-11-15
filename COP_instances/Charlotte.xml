@@ -1,0 +1,58 @@
+<!-- This instance size is reduced thanks to AI tools -->
+<instance format="XCSP3" type="COP">
+  <variables>
+    <array id="x" note="x[i][j] is the shift for the jth nurse on the ith day" size="[7][3]">
+      <domain for="x[0][] x[1][] x[2][] x[3][] x[4][]"> 0..2 </domain>
+      <domain for="x[5][] x[6][]"> 0 2 </domain>
+    </array>
+    <array id="y" note="y[j] is the nurse working on the jth weekend (and its multiple)" size="[3]"> 0..2 </array>
+  </variables>
+  <constraints>
+    <group note="ensuring different shifts on business days">
+      <allDifferent> %0 %1 %2 </allDifferent>
+      <args> x[0][] </args>
+      <args> x[1][] </args>
+      <args> x[2][] </args>
+      <args> x[3][] </args>
+      <args> x[4][] </args>
+    </group>
+    <allDifferent note="ensuring a permutation (for ordering worked weekends)"> y[] </allDifferent>
+    <group note="ensuring the same nurse working a long day on friday, saturday and sunday">
+      <element>
+        <list> %0 %1 %2 </list>
+        <index> %3 </index>
+        <value> 2 </value>
+      </element>
+      <args> x[4][] y[0] </args>
+      <args> x[5][] y[0] </args>
+      <args> x[6][] y[0] </args>
+    </group>
+    <group note="ensuring at least two days off, and two days working for every sequence of three days">
+      <extension>
+        <list> %0 %1 %2 </list>
+        <supports> (0,0,*)(0,1,1)(0,1,2)(0,2,1)(0,2,2)(1,0,0)(1,1,*)(1,2,*)(2,0,0)(2,1,*)(2,2,*) </supports>
+      </extension>
+      <args> x[0..2][0] </args>
+      <args> x[0..2][1] </args>
+      <args> x[0..2][2] </args>
+      <args> x[1..3][0] </args>
+      <args> x[1..3][1] </args>
+      <args> x[1..3][2] </args>
+      <args> x[2..4][0] </args>
+      <args> x[2..4][1] </args>
+      <args> x[2..4][2] </args>
+      <args> x[3..5][0] </args>
+      <args> x[3..5][1] </args>
+      <args> x[3..5][2] </args>
+      <args> x[4..6][0] </args>
+      <args> x[4..6][1] </args>
+      <args> x[4..6][2] </args>
+    </group>
+  </constraints>
+  <objectives>
+    <minimize type="sum">
+      <list> x[][0] x[][1] x[][2] </list>
+      <coeffs> 49 97 53 5 33 65 62 51 100 38 61 45 74 27 64 17 36 17 96 12 79 </coeffs>
+    </minimize>
+  </objectives>
+</instance>
