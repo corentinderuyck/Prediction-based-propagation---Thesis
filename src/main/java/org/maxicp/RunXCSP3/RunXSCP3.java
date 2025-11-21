@@ -287,6 +287,19 @@
             // start the Python server
             startServer();
 
+            final Set<String> INSTANCES_WITHOUT_SOLUTIONS = Set.of(
+                    "SchurrLemma-015-9-mod",
+                    "SchurrLemma-020-9-mod",
+                    "SchurrLemma-012-9-mod",
+                    "SchurrLemma-050-9-mod",
+                    "SchurrLemma-030-9-mod",
+                    "SchurrLemma-100-9-mod",
+                    "Langford-4-09",
+                    "ColouredQueens-03",
+                    "Subisomorphism-g16-g46",
+                    "Langford-2-06",
+                    "OpenStacks-m1-wbop-30-10-1"
+            );
 
             File dir = new File(folder);
             if (!dir.exists() || !dir.isDirectory()) {
@@ -299,7 +312,16 @@
                 return;
             }
 
+
             for (File file : files) {
+
+                String fileName = file.getName();
+                String instanceName = fileName.substring(0, fileName.lastIndexOf('.'));
+
+                if (INSTANCES_WITHOUT_SOLUTIONS.contains(instanceName)) {
+                    System.out.println("Skipping instance without solutions: " + file.getName());
+                    continue;
+                }
 
                 try {
                     runOneInstanceDifferentThresholdAI(file.getAbsolutePath());
@@ -403,6 +425,13 @@
             ExecutorService executor = Executors.newSingleThreadExecutor();
 
             for (File file : files) {
+                String baseName = file.getName().endsWith(".xml") ?
+                        file.getName().substring(0, file.getName().length() - 4) : file.getName();
+
+                if (baseName.equals("RubiksCube")) {
+                    System.out.println("Skipping instance: " + file.getName());
+                    continue;
+                }
 
                 Future<?> future = executor.submit(() -> {
                     try {
@@ -538,40 +567,10 @@
                     System.out.println("\nRunning optimization instance: " + file.getName());
                     RunResultOptimization results = runOptimizationInstance(file.getAbsolutePath());
                     System.out.println(results);
-                    saveStatisticsOptimization("instances_optimization.csv", file.getName(), results, 0.0f);
-                } catch (NotYetImplementedException e) {
-                    System.err.println("Instance not yet implemented: " + file.getName());
-                    // Delete the instance
-                    File instanceFile = new File(file.getAbsolutePath());
-                    boolean deleted = instanceFile.delete();
-                    if (deleted) {
-                        System.out.println("Deleted instance file: " + instanceFile.getAbsolutePath());
-                    } else {
-                        System.err.println("Failed to delete instance file: " + instanceFile.getAbsolutePath());
-                    }
-                } catch (NotImplementedException e) {
-                    System.err.println("Instance not yet implemented: " + file.getName());
-                    // Delete the instance
-                    File instanceFile = new File(file.getAbsolutePath());
-                    boolean deleted = instanceFile.delete();
-                    if (deleted) {
-                        System.out.println("Deleted instance file: " + instanceFile.getAbsolutePath());
-                    } else {
-                        System.err.println("Failed to delete instance file: " + instanceFile.getAbsolutePath());
-                    }
-                } catch(Exception e) {
+                    saveStatisticsOptimization("instances_optimization_inverse.csv", file.getName(), results, 0.0f);
+                } catch (Exception e) {
                     System.err.println("Error running instance: " + file.getName());
                     e.printStackTrace();
-                } catch (OutOfMemoryError e) {
-                    System.err.println("Out of memory error for instance: " + file.getName());
-                    // Delete the instance
-                    File instanceFile = new File(file.getAbsolutePath());
-                    boolean deleted = instanceFile.delete();
-                    if (deleted) {
-                        System.out.println("Deleted instance file: " + instanceFile.getAbsolutePath());
-                    } else {
-                        System.err.println("Failed to delete instance file: " + instanceFile.getAbsolutePath());
-                    }
                 }
             }
         }
@@ -738,8 +737,9 @@
 
 
         public static void main(String[] args) throws Exception {
+
             try {
-                runAllInstanceFolderAI("filtered_xml_instances_train");
+                runAllInstanceFolderAI("filtered_xml_instances_test");
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -770,8 +770,8 @@
 
             */
 
-            //runAllInstances("COP_instances", false);
-            //runOptimizationInstancesFolder("COP_instances");
+            //runAllInstances("filtered_xml_instances_test", false);
+            //runOptimizationInstancesFolder("COP_instances_inverse");
 
         }
     }

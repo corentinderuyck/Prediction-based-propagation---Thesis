@@ -1,0 +1,9 @@
+Instance,Nodes,Failures,Solutions,Completed,TotalExecutionTimeMillis,JavaExecutionTimeMillis,PythonAIExecutionTimeMillis,NumberOfCallsToPropagate,Threshold,BestObjectiveValue,isMinimization
+GolombRuler,30,2,14,true,182,182,0,34,0.00,20,false
+RubiksCube,126,57,7,true,83,83,0,82,0.00,20,false
+MultiAgentPathFinding,16,6,3,true,20,20,0,27,0.00,12,false
+ClockTriplet,20,10,1,true,5,5,0,21,0.00,33,false
+Pyramid,464,190,43,true,17,17,0,896,0.00,50,false
+Charlotte,2376,1161,28,true,61,61,0,6768,0.00,1634,false
+KMedian,2,1,1,true,50,50,0,8,0.00,1472,false
+Pyramid-2,1090,535,11,true,30,30,0,2968,0.00,30,false

@@ -1,0 +1,75 @@
+<instance format="XCSP3" type="COP">
+  <variables>
+    <array id="x" note="x[t][a] is the node where is the agent a at time t" size="[6][2]"> 0..11 </array>
+    <array id="e" note="e[a] is the time when the agent a arrives at its destination" size="[2]"> 0..5 </array>
+    <array id="aux_gb" note="aux_gb[i] is the ith auxiliary variable having been automatically introduced" size="[1]"> 0..10 </array>
+  </variables>
+  <constraints>
+    <group note="agents must occupy different node at any time">
+      <allDifferent> %... </allDifferent>
+      <args> x[0][] </args>
+      <args> x[1][] </args>
+      <args> x[2][] </args>
+      <args> x[3][] </args>
+      <args> x[4][] </args>
+      <args> x[5][] </args>
+    </group>
+    <group note="agents at their destinations stays there">
+      <intension> or(ne(%0,%1),eq(%2,%1)) </intension>
+      <args> x[0][0] 9 x[1][0] </args>
+      <args> x[0][1] 2 x[1][1] </args>
+      <args> x[1][0] 9 x[2][0] </args>
+      <args> x[1][1] 2 x[2][1] </args>
+      <args> x[2][0] 9 x[3][0] </args>
+      <args> x[2][1] 2 x[3][1] </args>
+      <args> x[3][0] 9 x[4][0] </args>
+      <args> x[3][1] 2 x[4][1] </args>
+      <args> x[4][0] 9 x[5][0] </args>
+      <args> x[4][1] 2 x[5][1] </args>
+    </group>
+    <group note="agents can only move to connected nodes">
+      <extension>
+        <list> %0 %1 </list>
+        <supports> (0,0)(0,1)(0,4)(1,0)(1,1)(1,2)(1,5)(2,1)(2,2)(2,3)(2,6)(3,2)(3,3)(3,7)(4,0)(4,4)(4,5)(4,8)(5,1)(5,4)(5,5)(5,6)(5,9)(6,2)(6,5)(6,6)(6,7)(6,10)(7,3)(7,6)(7,7)(7,11)(8,4)(8,8)(8,9)(9,5)(9,8)(9,9)(9,10)(10,6)(10,9)(10,10)(10,11)(11,7)(11,10)(11,11) </supports>
+      </extension>
+      <args> x[0][0] x[1][0] </args>
+      <args> x[0][1] x[1][1] </args>
+      <args> x[1][0] x[2][0] </args>
+      <args> x[1][1] x[2][1] </args>
+      <args> x[2][0] x[3][0] </args>
+      <args> x[2][1] x[3][1] </args>
+      <args> x[3][0] x[4][0] </args>
+      <args> x[3][1] x[4][1] </args>
+      <args> x[4][0] x[5][0] </args>
+      <args> x[4][1] x[5][1] </args>
+    </group>
+    <instantiation note="setting agents at their initial positions">
+      <list> x[0][] </list>
+      <values> 0 11 </values>
+    </instantiation>
+    <instantiation note="setting agents at their final positions">
+      <list> x[5][] </list>
+      <values> 9 2 </values>
+    </instantiation>
+    <group note="computing end times of agents">
+      <intension> iff(eq(%0,%1),and(ne(%2,%3),eq(%4,%3))) </intension>
+      <args> e[0] 1 x[0][0] 9 x[1][0] </args>
+      <args> e[1] 1 x[0][1] 2 x[1][1] </args>
+      <args> e[0] 2 x[1][0] 9 x[2][0] </args>
+      <args> e[1] 2 x[1][1] 2 x[2][1] </args>
+      <args> e[0] 3 x[2][0] 9 x[3][0] </args>
+      <args> e[1] 3 x[2][1] 2 x[3][1] </args>
+      <args> e[0] 4 x[3][0] 9 x[4][0] </args>
+      <args> e[1] 4 x[3][1] 2 x[4][1] </args>
+      <args> e[0] 5 x[4][0] 9 x[5][0] </args>
+      <args> e[1] 5 x[4][1] 2 x[5][1] </args>
+    </group>
+    <sum>
+      <list> e[] </list>
+      <condition> (eq,aux_gb[0]) </condition>
+    </sum>
+  </constraints>
+  <objectives>
+    <maximize> add(aux_gb[0],2) </maximize>
+  </objectives>
+</instance>

@@ -1,9 +1,9 @@
 Instance,Nodes,Failures,Solutions,Completed,TotalExecutionTimeMillis,JavaExecutionTimeMillis,PythonAIExecutionTimeMillis,NumberOfCallsToPropagate,Threshold,BestObjectiveValue,isMinimization
-GolombRuler,6,2,2,true,194,194,0,11,0.00,6,true
-RubiksCube,378,176,14,true,159,159,0,222,0.00,1,true
-MultiAgentPathFinding,280,138,3,true,41,41,0,749,0.00,8,true
-ClockTriplet,87232,43604,13,true,1149,1149,0,183227,0.00,21,true
-Pyramid,46,23,1,true,3,3,0,99,0.00,8,true
-Charlotte,1204,582,21,true,26,26,0,3515,0.00,757,true
-KMedian,2,1,1,true,30,30,0,8,0.00,1472,true
-Pyramid-2,592,296,1,true,9,9,0,1616,0.00,20,true
+GolombRuler,6,2,2,true,328,328,0,11,0.00,6,true
+RubiksCube,378,176,14,true,150,150,0,222,0.00,1,true
+MultiAgentPathFinding,280,138,3,true,36,36,0,749,0.00,8,true
+ClockTriplet,87232,43604,13,true,986,986,0,183181,0.00,21,true
+Pyramid,46,23,1,true,4,4,0,99,0.00,8,true
+Charlotte,1204,582,21,true,29,29,0,3518,0.00,757,true
+KMedian,2,1,1,true,25,25,0,8,0.00,1472,true
+Pyramid-2,592,296,1,true,8,8,0,1616,0.00,20,true

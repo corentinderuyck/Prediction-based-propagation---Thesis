@@ -1,0 +1,19 @@
+<!-- This instance size is reduced thanks to AI tools -->
+<instance format="XCSP3" type="COP">
+  <variables>
+    <array id="x" note="x[o,p] is the value of A(o,p)" size="[3][3]"> 0..50 </array>
+  </variables>
+  <constraints>
+    <intension note="imposing a non-null root"> ne(x[0][0],0) </intension>
+    <allDifferent note="imposing different values"> x[0..1][0] x[1][1] x[2][] </allDifferent>
+    <group note="computing triangle sums">
+      <intension> eq(%0,add(%1,%2)) </intension>
+      <args> x[0..1][0] x[1][1] </args>
+      <args> x[1..2][0] x[2][1] </args>
+      <args> x[1..2][1] x[2][2] </args>
+    </group>
+  </constraints>
+  <objectives>
+    <maximize note="minimizing the root value of the triangle"> x[0][0] </maximize>
+  </objectives>
+</instance>
