@@ -1,4 +1,0 @@
-Instance,Nodes,Failures,Solutions,Completed,TotalExecutionTimeMillis,JavaExecutionTimeMillis,PythonAIExecutionTimeMillis,NumberOfCallsToPropagate,Threshold
-GolombRuler,7946,188,3786,true,340,340,0,14192,0.00
-MultiAgentPathFinding,4912,0,2457,true,286,286,0,7278,0.00
-ClockTriplet-03-12_c22,224664246,4464,112327660,true,292822,292822,0,103246522,0.00
