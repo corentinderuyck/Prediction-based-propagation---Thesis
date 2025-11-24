@@ -30,9 +30,21 @@ def find_true_values_for_instance(inst, inst_df):
         row.get('NumberOfCallsToPropagate')
     )
 
-def plot_metric_by_instance(stats_file, metric, ylabel, instances_file, ncols, output_name):
+def _default_upper_file(instances_file):
+    if instances_file is None:
+        return None
+    base, ext = os.path.splitext(instances_file)
+    candidate = base + "_inverse" + ext
+    return candidate if os.path.exists(candidate) else None
+
+def plot_metric_by_instance(stats_file, metric, ylabel, instances_file, ncols, output_name, instances_file_upper=None):
     df = pd.read_csv(stats_file)
     inst_df = load_instances(instances_file)
+
+    inst_df_upper = None
+    if metric.lower() == "bestobjectivevalue":
+        upper_file = instances_file_upper or _default_upper_file(instances_file)
+        inst_df_upper = load_instances(upper_file) if upper_file is not None else None
 
     all_instances = sorted(df['Instance'].unique())
 
@@ -101,30 +113,66 @@ def plot_metric_by_instance(stats_file, metric, ylabel, instances_file, ncols, o
             'numberofcallstopropagate': nb_call_propagation
         }.get(metric.lower())
 
-        if true_value is not None:
-            try:
+        true_value_upper = None
+        if metric.lower() == "bestobjectivevalue" and inst_df_upper is not None:
+            sols_u, nodes_u, failures_u, bestobj_u, nb_call_propagation_u = find_true_values_for_instance(inst, inst_df_upper)
+            true_value_upper = {
+                'solutions': sols_u,
+                'nodes': nodes_u,
+                'failures': failures_u,
+                'bestobjectivevalue': bestobj_u,
+                'numberofcallstopropagate': nb_call_propagation_u
+            }.get(metric.lower())
+
+        candidates = []
+        tv = None
+        tv_upper = None
+        try:
+            if true_value is not None:
                 tv = float(true_value)
-                ymin, ymax = ax.get_ylim()
+                candidates.append(tv)
+        except (ValueError, TypeError):
+            tv = None
 
-                new_min = min(ymin, tv)
-                new_max = max(ymax, tv)
-                if new_min == new_max:
-                    new_min -= 1
-                    new_max += 1
-                span = new_max - new_min
-                margin = span * 0.05
-                ax.set_ylim(new_min - margin, new_max + margin)
+        if metric.lower() == "bestobjectivevalue":
+            try:
+                if true_value_upper is not None:
+                    tv_upper = float(true_value_upper)
+                    candidates.append(tv_upper)
+            except (ValueError, TypeError):
+                tv_upper = None
 
-                y0, y1 = ax.get_ylim()
+        if len(candidates) > 0:
+            ymin, ymax = ax.get_ylim()
+
+            new_min = min([ymin] + candidates)
+            new_max = max([ymax] + candidates)
+            if new_min == new_max:
+                new_min -= 1
+                new_max += 1
+            span = new_max - new_min
+            margin = span * 0.05
+            ax.set_ylim(new_min - margin, new_max + margin)
+
+            y0, y1 = ax.get_ylim()
+
+            if tv is not None:
                 ax.axhline(tv, color='red', linewidth=1.5, zorder=5)
-
                 y_frac = (tv - y0) / (y1 - y0) if (y1 - y0) != 0 else 0.5
                 label = str(int(tv)) if float(tv).is_integer() else f"{tv:.2f}"
                 ax.text(1.01, y_frac, label, transform=ax.transAxes,
                         ha='left', va='center', color='red',
                         backgroundcolor='white', fontsize=8, clip_on=False)
-            except (ValueError, TypeError):
-                pass
+
+            if metric.lower() == "bestobjectivevalue" and tv_upper is not None:
+                ax.axhline(tv_upper, color='blue', linewidth=1.5, zorder=5, linestyle='--')
+                y_frac_u = (tv_upper - y0) / (y1 - y0) if (y1 - y0) != 0 else 0.5
+                if tv is not None and abs(tv_upper - tv) < 1e-9:
+                    y_frac_u = min(0.98, y_frac_u + 0.02)
+                label_u = str(int(tv_upper)) if float(tv_upper).is_integer() else f"{tv_upper:.2f}"
+                ax.text(1.01, y_frac_u, label_u, transform=ax.transAxes,
+                        ha='left', va='center', color='blue',
+                        backgroundcolor='white', fontsize=8, clip_on=False)
 
         ax.set_title(name, fontsize=9)
         ax.set_xlabel('Threshold')
@@ -189,11 +237,16 @@ def _resolve_instance_name(instance_name, df):
 
     return None
 
-def plot_single_instance_metric(stats_file, instances_file, instance_name, metric_type, output_name):
+def plot_single_instance_metric(stats_file, instances_file, instance_name, metric_type, output_name, instances_file_upper=None):
     df = pd.read_csv(stats_file)
     inst_df = load_instances(instances_file)
 
     metric, ylabel = _normalize_metric_name(metric_type)
+
+    inst_df_upper = None
+    if metric.lower() == "bestobjectivevalue":
+        upper_file = instances_file_upper or _default_upper_file(instances_file)
+        inst_df_upper = load_instances(upper_file) if upper_file is not None else None
 
     resolved_instance = _resolve_instance_name(instance_name, df)
     if resolved_instance is None:
@@ -234,21 +287,50 @@ def plot_single_instance_metric(stats_file, instances_file, instance_name, metri
         'numberofcallstopropagate': nb_call_propagation
     }.get(metric.lower())
 
-    if true_value is not None:
-        try:
+    true_value_upper = None
+    if metric.lower() == "bestobjectivevalue" and inst_df_upper is not None:
+        sols_u, nodes_u, failures_u, bestobj_u, nb_call_propagation_u = find_true_values_for_instance(resolved_instance, inst_df_upper)
+        true_value_upper = {
+            'solutions': sols_u,
+            'nodes': nodes_u,
+            'failures': failures_u,
+            'bestobjectivevalue': bestobj_u,
+            'numberofcallstopropagate': nb_call_propagation_u
+        }.get(metric.lower())
+
+    candidates = []
+    tv = None
+    tv_upper = None
+    try:
+        if true_value is not None:
             tv = float(true_value)
-            ymin, ymax = ax.get_ylim()
+            candidates.append(tv)
+    except (ValueError, TypeError):
+        tv = None
 
-            new_min = min(ymin, tv)
-            new_max = max(ymax, tv)
-            if new_min == new_max:
-                new_min -= 1
-                new_max += 1
-            span = new_max - new_min
-            margin = span * 0.05
-            ax.set_ylim(new_min - margin, new_max + margin)
+    if metric.lower() == "bestobjectivevalue":
+        try:
+            if true_value_upper is not None:
+                tv_upper = float(true_value_upper)
+                candidates.append(tv_upper)
+        except (ValueError, TypeError):
+            tv_upper = None
 
-            y0, y1 = ax.get_ylim()
+    if len(candidates) > 0:
+        ymin, ymax = ax.get_ylim()
+
+        new_min = min([ymin] + candidates)
+        new_max = max([ymax] + candidates)
+        if new_min == new_max:
+            new_min -= 1
+            new_max += 1
+        span = new_max - new_min
+        margin = span * 0.05
+        ax.set_ylim(new_min - margin, new_max + margin)
+
+        y0, y1 = ax.get_ylim()
+
+        if tv is not None:
             ax.axhline(tv, color='red', linewidth=1.5, zorder=5)
 
             y_frac = (tv - y0) / (y1 - y0) if (y1 - y0) != 0 else 0.5
@@ -256,8 +338,17 @@ def plot_single_instance_metric(stats_file, instances_file, instance_name, metri
             ax.text(1.01, y_frac, label, transform=ax.transAxes,
                     ha='left', va='center', color='red',
                     backgroundcolor='white', fontsize=8, clip_on=False)
-        except (ValueError, TypeError):
-            pass
+
+        if metric.lower() == "bestobjectivevalue" and tv_upper is not None:
+            ax.axhline(tv_upper, color='blue', linewidth=1.5, zorder=5, linestyle='--')
+
+            y_frac_u = (tv_upper - y0) / (y1 - y0) if (y1 - y0) != 0 else 0.5
+            if tv is not None and abs(tv_upper - tv) < 1e-9:
+                y_frac_u = min(0.98, y_frac_u + 0.02)
+            label_u = str(int(tv_upper)) if float(tv_upper).is_integer() else f"{tv_upper:.2f}"
+            ax.text(1.01, y_frac_u, label_u, transform=ax.transAxes,
+                    ha='left', va='center', color='blue',
+                    backgroundcolor='white', fontsize=8, clip_on=False)
 
     name = os.path.basename(resolved_instance)
     ax.set_title(name, fontsize=10)

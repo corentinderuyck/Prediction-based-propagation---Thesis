@@ -14,8 +14,107 @@ import time
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-PROBA_FILE_PATH = "../data/edge_probas.txt"
-MAX_FILE_SIZE = 50 * 1024 * 1024 * 1024  # 2 Go en octets
+PROBA_JSON_PATH = "../data/edge_probas_hist.json"
+BIN_WIDTH = 0.01          # 0.00-0.01, 0.01-0.02, ...
+SAVE_EVERY = 50000
+
+
+class ProbaHistogram:
+    """
+    In-memory histogram + JSON flush every SAVE_EVERY updates.
+    Thread-safe.
+    """
+    def __init__(self, bin_width=0.01, save_every=500, path=PROBA_JSON_PATH):
+        self.bin_width = float(bin_width)
+        self.num_bins = int(round(1.0 / self.bin_width))
+        self.counts = [0] * self.num_bins
+        self.total_updates = 0
+        self.save_every = int(save_every)
+        self.path = path
+        self.lock = threading.Lock()
+
+        self._load_if_exists()
+
+    def _load_if_exists(self):
+        """Single read on startup if you want to resume an existing histogram."""
+        if not os.path.exists(self.path):
+            return
+        try:
+            with open(self.path, "r") as f:
+                data = json.load(f)
+
+            if abs(float(data.get("bin_width", self.bin_width)) - self.bin_width) > 1e-9:
+                logger.warning("Different bin width found in existing JSON")
+                return
+
+            counts_dict = data.get("counts", {})
+            new_counts = [0] * self.num_bins
+            for i in range(self.num_bins):
+                low = i * self.bin_width
+                high = (i + 1) * self.bin_width
+                key = f"{low:.2f}-{high:.2f}"
+                if key in counts_dict:
+                    new_counts[i] = int(counts_dict[key])
+
+            self.counts = new_counts
+            self.total_updates = int(data.get("total_updates", 0))
+            logger.info(f"Histogram loaded from {self.path} (updates={self.total_updates}).")
+
+        except Exception as e:
+            logger.warning(f"Could not load existing histogram: {e}")
+
+    def update(self, probs: torch.Tensor):
+        """
+        probs: 1D tensor of probabilities in [0,1]
+        """
+        if probs.numel() == 0:
+            return
+
+        probs_cpu = probs.detach().to("cpu")
+
+        # Clamp so p=1.0 does not fall out of the last bin
+        probs_cpu = probs_cpu.clamp(0.0, 1.0 - 1e-12)
+
+        # Bin indices
+        bin_idx = (probs_cpu / self.bin_width).floor().long()
+
+        # Vectorized counting
+        bc = torch.bincount(bin_idx, minlength=self.num_bins)
+
+        with self.lock:
+            for i in range(self.num_bins):
+                self.counts[i] += int(bc[i])
+
+            self.total_updates += 1
+            if self.total_updates % self.save_every == 0:
+                self._save_locked()
+
+    def to_dict(self):
+        d = {}
+        for i, c in enumerate(self.counts):
+            low = i * self.bin_width
+            high = (i + 1) * self.bin_width
+            d[f"{low:.2f}-{high:.2f}"] = c
+        return d
+
+    def _save_locked(self):
+        os.makedirs(os.path.dirname(self.path), exist_ok=True)
+        payload = {
+            "bin_width": self.bin_width,
+            "counts": self.to_dict(),
+            "total_updates": self.total_updates,
+            "total_probs": int(sum(self.counts)),
+            "timestamp": time.time(),
+        }
+        with open(self.path, "w") as f:
+            json.dump(payload, f, indent=2)
+        logger.info(f"Histogram saved")
+
+    def flush(self):
+        """Force an immediate save."""
+        with self.lock:
+            self._save_locked()
+
 
 class GraphSAGELinkPredictor(nn.Module):
     def __init__(self, hidden_channels, num_layers, dropout):
@@ -60,7 +159,8 @@ class GraphSAGELinkPredictor(nn.Module):
 
 
 class OptimizedModelPredictor:
-    def __init__(self, model_path, threshold=0.5):
+    def __init__(self, model_path, threshold=0.5,
+                 bin_width=BIN_WIDTH, save_every=SAVE_EVERY, hist_path=PROBA_JSON_PATH):
         self.threshold = threshold
         
         self.device = torch.device('cpu')
@@ -77,8 +177,15 @@ class OptimizedModelPredictor:
         self.model.to(self.device)
         self.model.eval()
 
+        # New: in-memory histogram
+        self.histogram = ProbaHistogram(
+            bin_width=bin_width,
+            save_every=save_every,
+            path=hist_path
+        )
+
     def build_edge_list(self, graph_dict):
-        """Build edge list from graph dictionary"""
+        """Build edge list from graph dictionary."""
         edges = []
         for left_node, right_nodes in graph_dict.items():
             u = int(left_node)
@@ -87,7 +194,7 @@ class OptimizedModelPredictor:
         return edges
 
     def create_pyg_data(self, graph_dict):
-        """Create PyG Data object from graph dictionary"""
+        """Create PyG Data object from graph dictionary."""
         edges = sorted(set(self.build_edge_list(graph_dict)))
 
         all_left_nodes = set(int(k) for k in graph_dict.keys())
@@ -132,7 +239,7 @@ class OptimizedModelPredictor:
         return data, original_edges
 
     def predict(self, graph_json):
-        """Prediction sur CPU pour un graphe + sauvegarde des probas par edge"""
+        """CPU prediction for a graph + update in-memory histogram."""
         data, original_edges = self.create_pyg_data(graph_json)
         if data is None:
             return {}
@@ -140,24 +247,10 @@ class OptimizedModelPredictor:
         with torch.inference_mode():
             logits = self.model(data)
             probs = torch.sigmoid(logits)
-            predictions = (probs > self.threshold)
-            predictions = predictions.cpu().numpy()
+            predictions = (probs > self.threshold).cpu().numpy()
 
-        try:
-            current_size = os.path.getsize(PROBA_FILE_PATH)
-        except FileNotFoundError:
-            current_size = 0
-
-        if current_size < MAX_FILE_SIZE:
-            probs_list = probs.cpu().tolist()
-            with open(PROBA_FILE_PATH, "a") as f:
-                for p in probs_list:
-                    line = f"{p:.6f}\n"
-                    line_bytes = line.encode("utf-8")
-                    if current_size + len(line_bytes) > MAX_FILE_SIZE:
-                        break
-                    f.write(line)
-                    current_size += len(line_bytes)
+        # New: update histogram instead of writing per-proba to disk
+        self.histogram.update(probs)
 
         edges_to_remove = {}
         for i, (u, v) in enumerate(original_edges):
@@ -179,11 +272,14 @@ totalTime = 0.0
 logger.info("Loading model...")
 predictor = OptimizedModelPredictor(
     MODEL_PATH, 
-    threshold=THRESHOLD
+    threshold=THRESHOLD,
+    bin_width=BIN_WIDTH,
+    save_every=SAVE_EVERY,
+    hist_path=PROBA_JSON_PATH
 )
 logger.info("Model ready for inference (CPU only)")
 
-# Unix Domain Socket server
+
 def handle_client(conn):
     global totalTime
     buffer = b""
@@ -205,7 +301,8 @@ def handle_client(conn):
 
                 # Special commands
                 if "kill" in json_data:
-                    logger.info("Received kill signal, shutting down server.")
+                    logger.info("Received kill signal, flushing histogram then shutting down.")
+                    predictor.histogram.flush()
                     os._exit(0)
                     return
 
@@ -242,6 +339,7 @@ def handle_client(conn):
         conn.close()
         logger.info("Client disconnected")
 
+
 def server():
     if os.path.exists(SOCKET_PATH):
         os.remove(SOCKET_PATH)
@@ -257,10 +355,13 @@ def server():
                 logger.info("Client connected")
                 threading.Thread(target=handle_client, args=(conn,), daemon=True).start()
         except KeyboardInterrupt:
-            logger.info("\nServer shutting down gracefully...")
+            logger.info("Server shutting down gracefully...")
         finally:
+            # Flush histogram on normal shutdown too
+            predictor.histogram.flush()
             if os.path.exists(SOCKET_PATH):
                 os.remove(SOCKET_PATH)
+
 
 if __name__ == "__main__":
     server()
