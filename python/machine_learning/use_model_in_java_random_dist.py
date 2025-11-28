@@ -5,14 +5,58 @@ import logging
 import os
 import time
 import threading
+import bisect
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
+class HistogramSampler:
+    def __init__(self, json_path):
+        logger.info(f"Loading histogram from {json_path}...")
+        with open(json_path, "r") as f:
+            hist = json.load(f)
+
+        counts_dict = hist["counts"]
+
+        items = sorted(
+            counts_dict.items(),
+            key=lambda kv: float(kv[0].split("-")[0])
+        )
+
+        self.bins = []
+        self.cum_weights = []
+        total = 0
+
+        for interval_str, count in items:
+            low_str, high_str = interval_str.split("-")
+            low = float(low_str)
+            high = float(high_str)
+            total += count
+            self.bins.append((low, high))
+            self.cum_weights.append(total)
+
+        self.total_weight = total
+        logger.info(f"Histogram loaded with total weight {self.total_weight} "
+                    f"and {len(self.bins)} bins.")
+
+    def sample(self):
+        r = random.uniform(0, self.total_weight)
+
+        # Dichotomie
+        idx = bisect.bisect_left(self.cum_weights, r)
+        if idx >= len(self.bins):
+            idx = len(self.bins) - 1
+
+        low, high = self.bins[idx]
+
+        return random.uniform(low, high)
+
+
 class RandomPredictor:
-    def __init__(self, threshold=0.5):
+    def __init__(self, threshold=0.5, sampler=None):
         self.threshold = threshold
+        self.sampler = sampler
         logger.info(f"Random predictor initialized with threshold: {threshold}")
     
     def build_edge_list(self, graph_dict):
@@ -25,17 +69,14 @@ class RandomPredictor:
         return edges
     
     def predict(self, graph_json):
-        """
-        Prediction for each edge en tirant simplement un nombre aléatoire uniforme
-        entre 0 et 1 pour chaque edge.
-        """
+        """Prediction for each edge en utilisant un tirage pondéré par l'histogramme"""
         edges = self.build_edge_list(graph_json)
         if not edges:
             return {}
         
         edges_to_remove = {}
         for u, v in edges:
-            random_value = random.uniform(0, 1)
+            random_value = self.sampler.sample()
 
             if random_value > self.threshold:
                 edges_to_remove.setdefault(str(u), []).append(v)
@@ -46,13 +87,17 @@ class RandomPredictor:
 # Configuration
 THRESHOLD = 0.5
 SOCKET_PATH = "/tmp/unix_socket_predictor"
+HISTOGRAM_PATH = "../data/edge_probas_hist.json" 
 
 # Time tracking
 totalTime = 0.0
 
+logger.info("Initializing histogram sampler...")
+hist_sampler = HistogramSampler(HISTOGRAM_PATH)
+
 # Initialize RandomPredictor
-logger.info("Initializing random predictor (uniform)...")
-predictor = RandomPredictor(threshold=THRESHOLD)
+logger.info("Initializing random predictor...")
+predictor = RandomPredictor(threshold=THRESHOLD, sampler=hist_sampler)
 logger.info("Random predictor ready")
 
 

@@ -27,7 +27,7 @@ plt.figure(figsize=(14, 6))
 plt.bar(bin_centers, values, width=bin_width, align="center")
 
 plt.yscale("log")
-plt.xlabel("Bin value")
+plt.xlabel("Probability intervals")
 plt.ylabel("Occurrences (log scale)")
 
 plt.xticks(bin_centers, interval_labels, rotation=90, fontsize=6)
@@ -45,7 +45,7 @@ labels_no_first = interval_labels[1:]
 plt.figure(figsize=(14, 6))
 plt.bar(bin_centers_no_first, values_no_first, width=bin_width, align="center")
 
-plt.xlabel("Bin value")
+plt.xlabel("Probability intervals")
 plt.ylabel("Occurrences")
 
 plt.xticks(bin_centers_no_first, labels_no_first, rotation=90, fontsize=6)

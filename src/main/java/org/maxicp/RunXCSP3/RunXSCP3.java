@@ -425,13 +425,6 @@
             ExecutorService executor = Executors.newSingleThreadExecutor();
 
             for (File file : files) {
-                String baseName = file.getName().endsWith(".xml") ?
-                        file.getName().substring(0, file.getName().length() - 4) : file.getName();
-
-                if (baseName.equals("RubiksCube")) {
-                    System.out.println("Skipping instance: " + file.getName());
-                    continue;
-                }
 
                 Future<?> future = executor.submit(() -> {
                     try {
@@ -567,7 +560,7 @@
                     System.out.println("\nRunning optimization instance: " + file.getName());
                     RunResultOptimization results = runOptimizationInstance(file.getAbsolutePath());
                     System.out.println(results);
-                    saveStatisticsOptimization("instances_optimization_inverse.csv", file.getName(), results, 0.0f);
+                    //saveStatisticsOptimization("instances_optimization.csv", file.getName(), results, 0.0f);
                 } catch (Exception e) {
                     System.err.println("Error running instance: " + file.getName());
                     e.printStackTrace();
@@ -594,6 +587,12 @@
 
             AtomicInteger bestValue = new AtomicInteger(isMinimization ? Integer.MAX_VALUE : Integer.MIN_VALUE);
 
+            // record the time before each solution is found
+            ArrayList<Long> solutionTimes = new ArrayList<>();
+
+            // record each value of the objective when a solution is found
+            ArrayList<Integer> objectiveValues = new ArrayList<>();
+
             // first fail branching (minimal domain size)
             Supplier<Runnable[]> branching = () -> {
 
@@ -619,6 +618,9 @@
                     // Extract the integer value from the objective string
                     int value = Integer.parseInt(s.replaceAll("\\D+", ""));
                     bestValue.set(value);
+
+                    solutionTimes.add(allExecutionTimer.getElapsedTimeMillis());
+                    objectiveValues.add(value);
                 });
                 SearchStatistics stats = search.optimize(obj);
                 result[0] = stats;
@@ -628,6 +630,27 @@
             long totalExecutionTime = allExecutionTimer.getElapsedTimeMillis();
 
             int nbCallPropagate = AtLeastNValueDC.nbCallPropagate;
+
+            // Record solutions, times and instances name
+            File csvFile = new File("results.csv");
+            boolean writeHeader = !csvFile.exists();
+
+            try (FileWriter fw = new FileWriter(csvFile, true);
+                 BufferedWriter bw = new BufferedWriter(fw);
+                 PrintWriter out = new PrintWriter(bw)) {
+
+                if (writeHeader) {
+                    out.println("Instance,solId,BestObjectiveValue,TimeMs");
+                }
+
+                for (int i = 0; i < objectiveValues.size(); i++) {
+                    int solId = i + 1;
+                    int value = objectiveValues.get(i);
+                    long timeMs = solutionTimes.get(i);
+
+                    out.printf("%s,%d,%d,%d%n", instanceFile, solId, value, timeMs);
+                }
+            }
 
             return new RunResultOptimization(result[0], totalExecutionTime, totalExecutionTime, 0L, nbCallPropagate, bestValue.get(), isMinimization);
         }
@@ -738,6 +761,7 @@
 
         public static void main(String[] args) throws Exception {
 
+            /*
             try {
                 runAllInstanceFolderAI("filtered_xml_instances_train");
             } catch (Exception e) {
@@ -752,7 +776,6 @@
                 }
             }
 
-            /*
             // run optimization instances
             try {
                 runOptimizationInstancesFolderAI("COP_instances");
@@ -771,7 +794,7 @@
             */
 
             //runAllInstances("filtered_xml_instances_test", false);
-            //runOptimizationInstancesFolder("COP_instances_inverse");
+            runOptimizationInstancesFolder("COP_instances");
 
         }
     }

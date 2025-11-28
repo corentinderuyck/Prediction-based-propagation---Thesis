@@ -84,3 +84,34 @@ plt.savefig('./plots/evolution_value_COP_3_best.pdf')
 plt.show()
 
 plt.close()
+
+
+selected_instances = ['RubiksCube', 'Charlotte', 'ClockTriplet']
+
+fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+axes = axes.flatten()
+
+i = 0
+
+for instance in selected_instances:
+    df_instance = df[df['Instance'] == instance]
+
+    axes[i].scatter(df_instance['TimeMs'], df_instance['BestObjectiveValue'])
+
+    y_min, y_max = df_instance['BestObjectiveValue'].min(), df_instance['BestObjectiveValue'].max()
+    y_offset = (y_max - y_min) * 0.05
+
+    axes[i].set_ylim(y_min - 0.05*(y_max - y_min), y_max + 2 * y_offset)
+
+    axes[i].set_title(instance, fontsize=14)
+    axes[i].set_xlabel('Time (ms)', fontsize=12)
+    axes[i].set_ylabel('Objective Value', fontsize=12)
+    axes[i].grid(True)
+
+    i += 1
+
+plt.tight_layout()
+plt.savefig('./plots/evolution_time_COP_3_best.pdf')
+plt.show()
+
+plt.close()

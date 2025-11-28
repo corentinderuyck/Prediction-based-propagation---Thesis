@@ -25,7 +25,7 @@ import java.util.Arrays;
 public class AllDifferentDC extends AbstractCPConstraint {
 
     // Choose the implementation based on a flag
-    private static final boolean USE_AI_MODEL = true;
+    private static final boolean USE_AI_MODEL = false;
 
     private final AbstractCPConstraint impl;
 

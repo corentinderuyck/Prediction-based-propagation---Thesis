@@ -3,6 +3,7 @@ import os
 import sys
 import random
 from typing import Iterator, List, Optional
+import bisect
 
 import pandas as pd
 from tqdm import tqdm
@@ -51,8 +52,12 @@ class StreamingJSONLDataset:
         line_num = 0
         
         with open(self.jsonl_path, 'r', encoding='utf-8') as f:
-            pbar = tqdm(total=self.total_lines, desc=f"Processing {os.path.basename(self.jsonl_path)}", 
-                       leave=True, dynamic_ncols=True)
+            pbar = tqdm(
+                total=self.total_lines,
+                desc=f"Processing {os.path.basename(self.jsonl_path)}", 
+                leave=True,
+                dynamic_ncols=True
+            )
             
             for line in f:
                 line_num += 1
@@ -82,15 +87,75 @@ class StreamingJSONLDataset:
             pbar.close()
 
 
+class HistogramSampler:
+    """
+    Sampler pondéré par un histogramme, comme dans ton serveur socket.
+    Le JSON doit contenir une clé "counts" avec des intervalles "low-high" : count.
+    """
+    def __init__(self, json_path):
+        print(f"Loading histogram from {json_path}...")
+        with open(json_path, "r", encoding="utf-8") as f:
+            hist = json.load(f)
+
+        counts_dict = hist["counts"]
+
+        items = sorted(
+            counts_dict.items(),
+            key=lambda kv: float(kv[0].split("-")[0])
+        )
+
+        self.bins = []
+        self.cum_weights = []
+        total = 0
+
+        for interval_str, count in items:
+            low_str, high_str = interval_str.split("-")
+            low = float(low_str)
+            high = float(high_str)
+            total += count
+            self.bins.append((low, high))
+            self.cum_weights.append(total)
+
+        self.total_weight = total
+        print(
+            f"Histogram loaded with total weight {self.total_weight} "
+            f"and {len(self.bins)} bins."
+        )
+
+    def sample(self):
+        r = random.uniform(0, self.total_weight)
+
+        # Recherche dichotomique dans les poids cumulés
+        idx = bisect.bisect_left(self.cum_weights, r)
+        if idx >= len(self.bins):
+            idx = len(self.bins) - 1
+
+        low, high = self.bins[idx]
+        return random.uniform(low, high)
+
+
 class RandomPredictor:
-    def __init__(self, threshold=0.5):
+    """
+    Prédicteur aléatoire, mais la variable aléatoire vient du sampler
+    d'histogramme au lieu de random.random() (uniforme).
+    """
+    def __init__(self, threshold=0.5, sampler: Optional[HistogramSampler] = None):
         self.threshold = threshold
+        self.sampler = sampler
+        if self.sampler is None:
+            print(f"Random predictor initialized with uniform sampling, threshold={threshold}")
+        else:
+            print(f"Random predictor initialized with histogram sampling, threshold={threshold}")
     
     def predict(self, edge_list):
-        """Random prediction for each edge"""
+        """Random prediction for each edge using histogram-based sampling if available"""
         predictions = []
         for _ in edge_list:
-            random_value = random.uniform(0, 1)
+            if self.sampler is not None:
+                random_value = self.sampler.sample()
+            else:
+                # fallback: ancien comportement uniforme [0,1)
+                random_value = random.random()
             # Predict 1 (removed) if random_value > threshold
             pred = 1 if random_value > self.threshold else 0
             predictions.append(pred)
@@ -100,12 +165,14 @@ class RandomPredictor:
 def evaluate_streaming(predictor, dataset, threshold):
     """
     Evaluate random predictor using streaming dataset to save memory.
+    (Le paramètre threshold est conservé pour compatibilité, 
+    mais c'est predictor.threshold qui est utilisé dans predict.)
     """
     tp_0 = fp_0 = tn_0 = fn_0 = 0
     tp_1 = fp_1 = tn_1 = fn_1 = 0
 
     for edge_list, labels in dataset:
-        # Get random predictions
+        # Get predictions
         predictions = predictor.predict(edge_list)
         
         for pred, target in zip(predictions, labels):
@@ -167,8 +234,16 @@ def evaluate_streaming(predictor, dataset, threshold):
 def print_metrics(metrics):
     print()
     print(f"Global Accuracy: {metrics['accuracy_global']:.4f}")
-    print(f"Class 0 (non-removed edges) - Precision: {metrics['class_0']['precision']:.4f}, Recall: {metrics['class_0']['recall']:.4f}, F1: {metrics['class_0']['f1']:.4f}, Support: {metrics['class_0']['support']}")
-    print(f"Class 1 (removed edges)     - Precision: {metrics['class_1']['precision']:.4f}, Recall: {metrics['class_1']['recall']:.4f}, F1: {metrics['class_1']['f1']:.4f}, Support: {metrics['class_1']['support']}")
+    print(f"Class 0 (non-removed edges) - "
+          f"Precision: {metrics['class_0']['precision']:.4f}, "
+          f"Recall: {metrics['class_0']['recall']:.4f}, "
+          f"F1: {metrics['class_0']['f1']:.4f}, "
+          f"Support: {metrics['class_0']['support']}")
+    print(f"Class 1 (removed edges)     - "
+          f"Precision: {metrics['class_1']['precision']:.4f}, "
+          f"Recall: {metrics['class_1']['recall']:.4f}, "
+          f"F1: {metrics['class_1']['f1']:.4f}, "
+          f"Support: {metrics['class_1']['support']}")
 
 
 def run_evaluation_on_jsonl(jsonl_path, predictor):
@@ -191,8 +266,9 @@ def run_evaluation_on_jsonl(jsonl_path, predictor):
 
 
 def main():
-    INPUT_FOLDER = "../data/train_test_data"
+    INPUT_FOLDER = "../data/train_data"
     THRESHOLD = 0.5
+    HISTOGRAM_PATH = "../data/edge_probas_hist.json"
 
     if not os.path.isdir(INPUT_FOLDER):
         print(f"Input folder not found: {INPUT_FOLDER}")
@@ -203,9 +279,16 @@ def main():
         print(f"No JSONL files found in {INPUT_FOLDER}")
         sys.exit(1)
 
+    # Histogram sampler
+    sampler = None
+    if os.path.exists(HISTOGRAM_PATH):
+        sampler = HistogramSampler(HISTOGRAM_PATH)
+    else:
+        print(f"WARNING: histogram file not found at {HISTOGRAM_PATH}, "
+              "falling back to uniform random sampling.")
+
     # Initialize random predictor
-    predictor = RandomPredictor(threshold=THRESHOLD)
-    print(f"Random predictor initialized with threshold={THRESHOLD}")
+    predictor = RandomPredictor(threshold=THRESHOLD, sampler=sampler)
 
     # summary rows to save at the end
     summary_rows = []
@@ -245,7 +328,7 @@ def main():
     # save summary CSV if we have results
     if summary_rows:
         summary_df = pd.DataFrame(summary_rows)
-        summary_path = os.path.join(INPUT_FOLDER, "evaluation_summary_random.csv")
+        summary_path = os.path.join(INPUT_FOLDER, "evaluation_summary_random_hist.csv")
         summary_df.to_csv(summary_path, index=False)
         print()
         print(f"Saved evaluation summary to: {summary_path}")
