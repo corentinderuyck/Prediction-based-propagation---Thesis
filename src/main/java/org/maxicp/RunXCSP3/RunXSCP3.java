@@ -761,7 +761,7 @@
         public static void main(String[] args) throws Exception {
 
             try {
-                runAllInstanceFolderAI("filtered_xml_instances_train_test");
+                runAllInstanceFolderAI("filtered_xml_instances_test");
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -775,6 +775,7 @@
             }
 
             /*
+
             // run optimization instances
             try {
                 runOptimizationInstancesFolderAI("COP_instances");
@@ -790,7 +791,9 @@
                 }
             }
 
-            */
+
+             */
+
 
             //runAllInstances("filtered_xml_instances_test", false);
             //runOptimizationInstancesFolder("COP_instances");
